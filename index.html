@@ -8278,7 +8278,12 @@ function showMissingFieldsAlert(extracted) {
 // EXTRACTION HISTORY
 // ===========================
 function saveExtractionHistory(extracted, sourceText) {
-  const history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    history = []; // Reset jika corrupt
+  }
   const entry = {
     id: Date.now(),
     timestamp: new Date().toISOString(),
@@ -8306,7 +8311,13 @@ function renderExtractionHistory() {
   const list = document.getElementById('extraction-history-list');
   if (!list) return;
   
-  const history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    history = []; // Reset jika corrupt
+    localStorage.removeItem('extraction_history');
+  }
   
   if (history.length === 0) {
     list.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:20px;text-align:center;">No extraction history yet. Run AI extract to see history here.</div>';
@@ -8337,28 +8348,43 @@ function renderExtractionHistory() {
 }
 
 function loadExtractionFromHistory(id) {
-  const history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    showToast('❌ History corrupt - resetting');
+    localStorage.removeItem('extraction_history');
+    return;
+  }
   const entry = history.find(h => h.id === id);
   if (!entry) {
     showToast('❌ History entry not found');
     return;
   }
-  
+
   _aiExtracted = entry.data;
   renderAIPreview(entry.data);
-  
+
   const resultDiv = document.getElementById('ai-extract-result');
   if (resultDiv) {
     resultDiv.style.display = 'block';
     showMissingFieldsAlert(entry.data);
   }
-  
+
   document.getElementById('extraction-history-list').style.display = 'none';
   showToast('✅ Extraction loaded from history');
 }
 
 function deleteExtractionHistory(id) {
-  const history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    showToast('❌ History corrupt - resetting');
+    localStorage.removeItem('extraction_history');
+    renderExtractionHistory();
+    return;
+  }
   const filtered = history.filter(h => h.id !== id);
   localStorage.setItem('extraction_history', JSON.stringify(filtered));
   renderExtractionHistory();
@@ -10988,6 +11014,15 @@ document.addEventListener('keydown', function(e) {
     new ResizeObserver(updateScrollNav).observe(main);
     updateScrollNav();
     applyZoom();
+    
+    // Validate and reset corrupt extraction history
+    try {
+      const hist = localStorage.getItem('extraction_history');
+      if (hist) JSON.parse(hist);
+    } catch(e) {
+      console.warn('Extraction history corrupt, resetting');
+      localStorage.removeItem('extraction_history');
+    }
     renderExtractionHistory();
   }
 
