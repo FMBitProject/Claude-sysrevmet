@@ -1976,8 +1976,14 @@
         style="border:2px dashed var(--border2);border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;background:var(--bg3);transition:all .2s;">
         <div style="font-size:32px;margin-bottom:8px;">📄</div>
         <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px;">Drop PDF or image here</div>
-        <div style="font-size:11px;color:var(--text3);">or click to browse · PDF, PNG, JPG, WEBP supported · up to 5MB</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">or click to browse · PDF, PNG, JPG, WEBP supported · up to 5MB</div>
         <div id="extractor-file-name" style="margin-top:10px;font-size:11px;font-weight:600;color:var(--accent);display:none;"></div>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--greenl);border:1px solid var(--green);border-radius:6px;text-align:left;">
+          <div style="font-size:10px;color:#065f46;line-height:1.6;">
+            <strong>✅ Powered by Google Gemini AI</strong> — No CORS issues, works directly from browser.<br>
+            Get FREE API key at <a href="https://aistudio.google.com/apikey" target="_blank" style="text-decoration:underline;">aistudio.google.com/apikey</a>
+          </div>
+        </div>
       </div>
       <input type="file" id="extractor-file-input" accept=".pdf,.png,.jpg,.jpeg,.webp"
         style="display:none" onchange="handleExtractorFileSelect(this)"/>
@@ -2550,7 +2556,7 @@
       <div style="font-size:36px;">✨</div>
       <div>
         <div style="font-size:15px;font-weight:700;margin-bottom:4px;">AI Systematic Review &amp; Meta-Analysis Paper Generator</div>
-        <div style="font-size:11px;opacity:.85;line-height:1.6;">Claude AI writes your complete paper — Introduction through Conclusion — using all real data from this workspace. Each section is written in academic English, properly cited, and aligned with PRISMA 2020 &amp; Cochrane standards.</div>
+        <div style="font-size:11px;opacity:.85;line-height:1.6;">Google Gemini AI writes your complete paper — Introduction through Conclusion — using all real data from this workspace. Each section is written in academic English, properly cited, and aligned with PRISMA 2020 &amp; Cochrane standards.</div>
       </div>
     </div>
   </div>
@@ -2883,7 +2889,7 @@
 
           <div style="display:flex;gap:10px;padding:8px 12px;border-radius:6px;background:var(--bg3);border-left:3px solid #7c3aed;">
             <span style="font-size:11px;font-weight:700;color:#7c3aed;min-width:28px;">Tab 12</span>
-            <div><strong style="font-size:11px;">AI Paper Generator</strong> — Claude AI writes your complete paper section by section with live streaming. From Abstract through References. Uses your actual computed statistics, study list, and GRADE results.</div>
+            <div><strong style="font-size:11px;">AI Paper Generator</strong> — Google Gemini AI writes your complete paper section by section with live streaming. From Abstract through References. Uses your actual computed statistics, study list, and GRADE results.</div>
           </div>
 
           <div style="display:flex;gap:10px;padding:8px 12px;border-radius:6px;background:var(--bg3);border-left:3px solid #0d9488;">
@@ -3505,7 +3511,7 @@
         <div class="guide-section-title">AI Features Guide</div>
 
         <div class="guide-subsection">AI Data Extractor — Tab 3</div>
-        <div class="guide-note guide-note-blue">Paste any text from a paper into the AI Extractor text box and Claude AI will automatically extract all numerical data and fill the study fields. You can paste an abstract, a results section, or a results table.</div>
+        <div class="guide-note guide-note-blue">Paste any text from a paper into the AI Extractor text box and Google Gemini AI will automatically extract all numerical data and fill the study fields. You can paste an abstract, a results section, or a results table.</div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
           <div style="padding:8px 12px;background:var(--bg3);border-radius:5px;border:1px solid var(--border);">
@@ -3533,13 +3539,13 @@
             <div style="font-size:10px;color:var(--text2);">Author surname, publication year, and journal name from any part of the pasted text</div>
           </div>
         </div>
-        <div class="guide-note guide-note-amber">Tip: Use the Outcome Hint field to tell Claude what to focus on, for example HbA1c at 12 weeks or all-cause mortality. This improves accuracy when the paper reports multiple outcomes on the same page.</div>
+        <div class="guide-note guide-note-amber">Tip: Use the Outcome Hint field to tell Gemini what to focus on, for example HbA1c at 12 weeks or all-cause mortality. This improves accuracy when the paper reports multiple outcomes on the same page.</div>
 
         <div class="guide-subsection">AI Paper Generator — Tab 12</div>
-        <div class="guide-note guide-note-purple">Claude AI writes your complete paper using all real data from the workspace. Each section uses the actual computed statistics, study list, Risk of Bias results, and GRADE certainty ratings.</div>
+        <div class="guide-note guide-note-purple">Google Gemini AI writes your complete paper using all real data from the workspace. Each section uses the actual computed statistics, study list, Risk of Bias results, and GRADE certainty ratings.</div>
 
         <table class="guide-table">
-          <thead><tr><th>Section Generated</th><th>What Claude Writes</th><th>Approximate Length</th></tr></thead>
+          <thead><tr><th>Section Generated</th><th>What Gemini Writes</th><th>Approximate Length</th></tr></thead>
           <tbody>
             <tr><td>Abstract</td><td>Structured format with Background, Objectives, Methods including exact statistics, Results with pooled effect size and CI, and Conclusions</td><td>About 300 words</td></tr>
             <tr><td>Introduction</td><td>Disease burden, existing evidence, knowledge gap, and objectives stated using your PICO framework</td><td>About 600 words</td></tr>
@@ -3641,7 +3647,7 @@
             <summary style="padding:12px 16px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;">
               <span style="color:var(--accent);">&#9658;</span> Can I use this tool offline?
             </summary>
-            <div style="padding:0 16px 14px 36px;font-size:11px;color:var(--text2);line-height:1.7;">Yes. All statistical calculations, forest plot, funnel plot, GRADE assessment, sensitivity analyses, and all export functions work completely offline. Database search requires internet to connect to PubMed, Europe PMC, and other APIs. The AI Data Extractor and AI Paper Generator require internet to connect to the Claude API.</div>
+            <div style="padding:0 16px 14px 36px;font-size:11px;color:var(--text2);line-height:1.7;">Yes. All statistical calculations, forest plot, funnel plot, GRADE assessment, sensitivity analyses, and all export functions work completely offline. Database search requires internet to connect to PubMed, Europe PMC, and other APIs. The AI Data Extractor and AI Paper Generator require internet to connect to the Gemini API.</div>
           </details>
 
           <details style="background:var(--bg3);border-radius:6px;border:1px solid var(--border);overflow:hidden;">
@@ -7764,19 +7770,19 @@ function downloadHTML(html, filename) {
 // Keep extracted data in memory until applied
 
 // ===========================
-// ANTHROPIC API KEY MANAGER
+// GOOGLE GEMINI API KEY MANAGER
 // ===========================
-// The API key is stored ONLY in sessionStorage (cleared when tab closes).
-// It is sent ONLY to api.anthropic.com via corsproxy.io.
-// It is never logged, saved to localStorage, or sent anywhere else.
+// The API key is stored in localStorage (persists across sessions).
+// It is sent ONLY to generativelanguage.googleapis.com.
+// It is never logged or sent anywhere else.
 
 function getApiKey() {
-  return localStorage.getItem('anthropic_api_key') || '';
+  return localStorage.getItem('gemini_api_key') || '';
 }
 
 function setApiKey(key) {
-  if (key) localStorage.setItem('anthropic_api_key', key.trim());
-  else localStorage.removeItem('anthropic_api_key');
+  if (key) localStorage.setItem('gemini_api_key', key.trim());
+  else localStorage.removeItem('gemini_api_key');
   updateApiKeyUI();
 }
 
@@ -7791,15 +7797,15 @@ function updateApiKeyUI() {
   });
   document.querySelectorAll('.api-key-field').forEach(el => {
     el.value = isSet ? '•'.repeat(20) + key.slice(-4) : '';
-    el.placeholder = isSet ? 'Key saved (sk-ant-…' + key.slice(-4) + ')' : 'sk-ant-api03-…';
+    el.placeholder = isSet ? 'Key saved (AIza…' + key.slice(-4) + ')' : 'AIzaSy...';
   });
 }
 
 function saveApiKeyFromInput(inputId) {
   const val = document.getElementById(inputId)?.value?.trim();
-  if (!val || val.startsWith('•')) return; // don't overwrite with masked value
-  if (!val.startsWith('sk-ant-')) {
-    showToast('⚠ Invalid key format. Anthropic keys start with sk-ant-');
+  if (!val || val.startsWith('•')) return;
+  if (!val.startsWith('AIza')) {
+    showToast('⚠ Invalid key format. Gemini keys start with AIza');
     return;
   }
   setApiKey(val);
@@ -7813,63 +7819,53 @@ function clearApiKey() {
   showToast('🔑 API key cleared.');
 }
 
-// Central Anthropic API caller — handles key + CORS proxy
-async function callAnthropicAPI(body, signal) {
+// Central Google Gemini API caller — direct call, no CORS proxy needed
+async function callGeminiAPI(contents, options = {}) {
   const key = getApiKey();
   if (!key) throw new Error('API_KEY_MISSING');
 
-  const TARGET  = 'https://api.anthropic.com/v1/messages';
-  const bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
-  const hdrs = {
-    'Content-Type':       'application/json',
-    'x-api-key':          key,
-    'anthropic-version':  '2023-06-01',
-  };
+  const model = options.model || 'gemini-2.0-flash';
+  const TARGET = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
 
-  // Proxy list — tried in order. Each proxy must forward request headers.
-  // proxy.cors.sh: open CORS proxy that explicitly forwards all headers
-  // cors-anywhere hosted instances also work
-  const endpoints = [
-    // 1. Direct (works when opened via local server, Electron, or browser with CORS disabled)
-    { url: TARGET, headers: hdrs },
-    // 2. proxy.cors.sh — passes all headers through to the target
-    { url: 'https://proxy.cors.sh/' + TARGET, headers: { ...hdrs, 'x-cors-api-key': 'temp_' + Date.now() } },
-    // 3. corsproxy.io with header pass-through via query param trick
-    { url: 'https://corsproxy.io/?' + encodeURIComponent(TARGET), headers: hdrs },
-    // 4. thingproxy (alternative)
-    { url: 'https://thingproxy.freeboard.io/fetch/' + TARGET, headers: hdrs },
-  ];
+  try {
+    const resp = await fetch(TARGET, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: contents,
+        generationConfig: {
+          temperature: options.temperature || 0.1,
+          maxOutputTokens: options.maxTokens || 4096,
+          responseFormat: options.responseFormat || 'text',
+        },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        ],
+      }),
+    });
 
-  let lastErr = null;
-  for (const ep of endpoints) {
-    try {
-      const resp = await fetch(ep.url, {
-        method:  'POST',
-        signal:  signal || undefined,
-        headers: ep.headers,
-        body:    bodyStr,
-      });
-      // Check for auth errors — no point retrying with other proxies
-      if (resp.status === 401) throw new Error('FATAL:Invalid API key — check at console.anthropic.com');
-      if (resp.status === 429) throw new Error('FATAL:Rate limit exceeded — wait a moment and retry');
-      if (resp.status === 400) {
-        const e = await resp.json().catch(()=>({}));
-        throw new Error('FATAL:' + (e.error?.message || 'Bad request'));
-      }
-      if (!resp.ok) { lastErr = new Error(`HTTP ${resp.status}`); continue; }
-      return resp; // success
-    } catch(e) {
-      if (e.message?.startsWith('FATAL:') || e.name === 'AbortError') throw new Error(e.message.replace('FATAL:',''));
-      lastErr = e;
+    if (!resp.ok) {
+      const error = await resp.json().catch(() => ({}));
+      if (resp.status === 400) throw new Error('Invalid request: ' + (error.error?.message || 'Bad request'));
+      if (resp.status === 401) throw new Error('Invalid API key — check at aistudio.google.com');
+      if (resp.status === 429) throw new Error('Rate limit exceeded — please wait a moment');
+      throw new Error(`HTTP ${resp.status}: ${error.error?.message || resp.statusText}`);
     }
-  }
 
-  // All proxies failed — show helpful error
-  throw new Error('CORS_BLOCKED');
+    return await resp.json();
+
+  } catch (err) {
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      throw new Error('Network error — check your internet connection');
+    }
+    throw err;
+  }
 }
 
 function showApiKeySetup(context) {
-  // Show a compact toast-style inline prompt instead of a full modal
   const existing = document.getElementById('api-key-toast');
   if (existing) { existing.querySelector('.api-key-toast-input')?.focus(); return; }
 
@@ -7879,21 +7875,21 @@ function showApiKeySetup(context) {
     position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
     z-index:400; background:var(--bg2); border:1.5px solid var(--accent);
     border-radius:14px; padding:16px 20px; box-shadow:0 8px 32px rgba(0,0,0,.2);
-    width:480px; max-width:94vw; animation:fadeIn .2s ease;
+    width:520px; max-width:94vw; animation:fadeIn .2s ease;
   `;
   toast.innerHTML = `
     <div style="display:flex;align-items:flex-start;gap:12px;">
       <div style="font-size:22px;flex-shrink:0;">🔑</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">Enter Anthropic API Key</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">Enter Google Gemini API Key</div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;">
-          Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);font-weight:600;">console.anthropic.com</a>
-          → API Keys → Create Key.
+          Get a FREE key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent);font-weight:600;">aistudio.google.com/apikey</a>
+          → Click "Get API Key" → Create in new project.
           <span style="color:var(--text4);">Saved locally in your browser.</span>
         </div>
         <div style="display:flex;gap:8px;">
           <input type="password" class="api-key-toast-input"
-            placeholder="sk-ant-api03-…"
+            placeholder="AIzaSy..."
             style="flex:1;font-size:12px;font-family:var(--mono);padding:8px 11px;border-radius:8px;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text);outline:none;"
             onkeydown="if(event.key==='Enter')saveApiKeyFromToast()"
             onfocus="this.style.borderColor='var(--accent)'"
@@ -7908,53 +7904,11 @@ function showApiKeySetup(context) {
   setTimeout(() => toast.querySelector('.api-key-toast-input')?.focus(), 50);
 }
 
-
-function showCorsHelp() {
-  const existing = document.getElementById('cors-help-toast');
-  if (existing) existing.remove();
-  const t = document.createElement('div');
-  t.id = 'cors-help-toast';
-  t.style.cssText = `
-    position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-    z-index:400;background:var(--bg2);border:1.5px solid var(--amber);
-    border-radius:14px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2);
-    width:520px;max-width:95vw;animation:fadeIn .2s ease;
-  `;
-  t.innerHTML = `
-    <div style="display:flex;gap:10px;">
-      <div style="font-size:22px;flex-shrink:0;">⚠️</div>
-      <div style="flex:1;">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Browser CORS restriction</div>
-        <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:12px;">
-          Your browser blocks direct API calls from local HTML files. Choose one option:
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;">
-          <div style="padding:8px 12px;background:var(--greenl);border-radius:7px;border:1px solid var(--green);">
-            <strong style="color:var(--green);">✅ Option 1 — Easiest:</strong> Open this file via a local server:<br>
-            <code style="font-size:10px;background:var(--bg3);padding:2px 6px;border-radius:3px;display:inline-block;margin-top:4px;">python -m http.server 8080</code>
-            then open <code style="font-size:10px;background:var(--bg3);padding:2px 6px;border-radius:3px;">http://localhost:8080</code>
-          </div>
-          <div style="padding:8px 12px;background:var(--accentl);border-radius:7px;border:1px solid rgba(67,97,238,.2);">
-            <strong style="color:var(--accent);">✅ Option 2:</strong> Open Chrome with CORS disabled (dev only):<br>
-            <code style="font-size:10px;background:var(--bg3);padding:2px 6px;border-radius:3px;display:inline-block;margin-top:4px;">chrome --disable-web-security --user-data-dir=/tmp/chrome</code>
-          </div>
-          <div style="padding:8px 12px;background:var(--purplel);border-radius:7px;border:1px solid rgba(124,58,237,.2);">
-            <strong style="color:var(--purple);">✅ Option 3:</strong> Install the <strong>CORS Unblock</strong> browser extension from Chrome Web Store, enable it, then retry.
-          </div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
-          <button onclick="document.getElementById('cors-help-toast').remove()" class="btn btn-ghost btn-sm">Close</button>
-        </div>
-      </div>
-    </div>`;
-  document.body.appendChild(t);
-}
-
 function saveApiKeyFromToast() {
   const input = document.querySelector('.api-key-toast-input');
   const val   = input?.value?.trim();
-  if (!val || !val.startsWith('sk-ant-')) {
-    if (input) { input.style.borderColor = 'var(--red)'; input.placeholder = 'Must start with sk-ant-…'; }
+  if (!val || !val.startsWith('AIza')) {
+    if (input) { input.style.borderColor = 'var(--red)'; input.placeholder = 'Must start with AIza…'; }
     return;
   }
   setApiKey(val);
@@ -7991,7 +7945,7 @@ function refreshAIStudySelector() {
 }
 
 // ===========================
-// AI DATA EXTRACTOR — Claude-powered
+// AI DATA EXTRACTOR — Gemini-powered
 // ===========================
 
 function toggleExtractorKeyInput() {
@@ -8003,24 +7957,24 @@ function toggleExtractorKeyInput() {
 
 function saveExtractorKey() {
   const val = document.getElementById('extractor-key-field')?.value?.trim();
-  if (!val || !val.startsWith('sk-ant-')) {
-    showToast('⚠ Key must start with sk-ant-');
+  if (!val || !val.startsWith('AIza')) {
+    showToast('⚠ Key must start with AIza');
     return;
   }
-  localStorage.setItem('anthropic_api_key', val);
+  localStorage.setItem('gemini_api_key', val);
   updateExtractorKeyStatus();
   document.getElementById('extractor-key-input-row').style.display = 'none';
   showToast('✅ API key saved');
 }
 
 function clearExtractorKey() {
-  localStorage.removeItem('anthropic_api_key');
+  localStorage.removeItem('gemini_api_key');
   document.getElementById('extractor-key-field').value = '';
   updateExtractorKeyStatus();
 }
 
 function updateExtractorKeyStatus() {
-  const key = localStorage.getItem('anthropic_api_key') || '';
+  const key = localStorage.getItem('gemini_api_key') || '';
   const statusEl = document.getElementById('extractor-key-status');
   const btnEl    = document.getElementById('extractor-key-btn');
   if (key) {
@@ -8154,10 +8108,10 @@ async function runAIExtractor() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> AI Reading…';
   resultDiv.style.display = 'none';
-  statusEl.innerHTML = '<span style="color:var(--text3);">Sending to Claude…</span>';
+  statusEl.innerHTML = '<span style="color:var(--text3);">Sending to Gemini…</span>';
   refreshAIStudySelector();
 
-  // If file uploaded → use Claude API with document/image source
+  // If file uploaded → use Gemini API with document/image source
   if (hasFile) {
     await runAIExtractorWithFile(_extractorFileData, hint, btn, resultDiv, statusEl);
   } else {
@@ -8180,11 +8134,11 @@ async function runAIExtractor() {
 }
 
 async function runAIExtractorWithFile(fileData, hint, btn, resultDiv, statusEl) {
-  // Build message content with file attachment
-  const systemPrompt = `You are a biomedical data extraction assistant for systematic reviews and meta-analyses.
+  // Build system instruction
+  const systemInstruction = `You are a biomedical data extraction assistant for systematic reviews and meta-analyses.
 Read the uploaded paper/image and extract ALL numerical outcome data needed for meta-analysis.
 Never invent or estimate values — only extract what is explicitly stated.
-Respond ONLY with valid JSON — no markdown, no backticks, no explanation.
+Respond ONLY with valid JSON — no markdown, no backticks, no explanation, no extra text.
 
 JSON schema (use null for any field not found):
 {
@@ -8214,43 +8168,38 @@ JSON schema (use null for any field not found):
   "notes": "what was extracted and which section was used, any ambiguities"
 }`;
 
-  const userContent = [];
+  // Build content parts for Gemini
+  const contentParts = [];
 
-  // Add file as document or image
-  if (fileData.mediaType === 'application/pdf') {
-    userContent.push({
-      type: 'document',
-      source: { type: 'base64', media_type: 'application/pdf', data: fileData.base64 }
-    });
-  } else {
-    userContent.push({
-      type: 'image',
-      source: { type: 'base64', media_type: fileData.mediaType, data: fileData.base64 }
-    });
-  }
-
-  userContent.push({
-    type: 'text',
-    text: `Extract all meta-analysis outcome data from this paper.${hint ? '\nFocus on outcome: ' + hint : ''}\nReturn ONLY the JSON object.`
+  // Add file as inline data
+  contentParts.push({
+    inlineData: {
+      mimeType: fileData.mediaType,
+      data: fileData.base64
+    }
   });
 
-  const requestBody = {
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 2000,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userContent }]
-  };
+  // Add text prompt
+  contentParts.push({
+    text: `Extract all meta-analysis outcome data from this paper.${hint ? '\nFocus on outcome: ' + hint : ''}\nReturn ONLY the JSON object with the schema provided in the system instruction.`
+  });
 
   try {
-    statusEl.innerHTML = '<span style="color:var(--accent);">📡 Connecting to Claude API…</span>';
-    const resp = await callAnthropicAPI(requestBody);
+    statusEl.innerHTML = '<span style="color:var(--accent);">📡 Connecting to Google Gemini API…</span>';
 
-    const data = await resp.json();
-    const raw  = data.content?.map(b => b.text||'').join('').trim();
-    
+    const response = await callGeminiAPI(
+      [{ parts: contentParts }],
+      {
+        model: 'gemini-2.0-flash',
+        maxTokens: 2000,
+        temperature: 0.1,
+      }
+    );
+
+    const raw = response.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!raw) throw new Error('No content in response');
-    
-    const clean = raw.replace(/```json|```/g,'').trim();
+
+    const clean = raw.replace(/```json|```/g, '').trim();
     const extracted = JSON.parse(clean);
 
     _aiExtracted = extracted;
@@ -8263,11 +8212,8 @@ JSON schema (use null for any field not found):
   } catch(err) {
     let errMsg = err.message;
     if (err.message === 'API_KEY_MISSING') {
-      errMsg = 'API key not set. Please enter your Anthropic API key.';
+      errMsg = 'API key not set. Please enter your Google Gemini API key.';
       showApiKeySetup('extractor');
-    } else if (err.message === 'CORS_BLOCKED') {
-      errMsg = 'Request blocked by CORS. Try: 1) Use a local server, 2) Install CORS disable extension, or 3) Paste abstract text instead.';
-      showCorsHelp();
     }
     statusEl.innerHTML = `<span style="color:var(--red);">❌ ${errMsg}</span>`;
     showToast('❌ AI extraction failed: ' + errMsg);
@@ -9109,46 +9055,29 @@ async function generateFullPaper() {
         throw new Error('API_KEY_MISSING');
       }
 
-      const response = await callAnthropicAPI({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: length === 'short' ? 1000 : length === 'detailed' ? 2000 : 1500,
-        stream: true,
-        system: `You are an expert academic writer specializing in systematic reviews and meta-analyses. 
+      // Build prompt with system instruction
+      const systemPrompt = `You are an expert academic writer specializing in systematic reviews and meta-analyses.
 Write in formal, high-quality academic English suitable for publication in international peer-reviewed journals (BMJ, JAMA, Lancet, PLoS ONE).
-Use precise scientific language. Include real-style citations (Author et al., Year). 
+Use precise scientific language. Include real-style citations (Author et al., Year).
 Never use placeholder text like [INSERT] or [citation needed].
-Always base content on the data provided. Never fabricate statistical values.`,
-        messages: [{ role: 'user', content: prompt }]
-      }, _paperAbortController.signal);
+Always base content on the data provided. Never fabricate statistical values.`;
 
-      // Stream reader
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let sectionText = '';
+      const contents = [{
+        parts: [{
+          text: systemPrompt + '\n\n---\n\nTask: ' + prompt
+        }]
+      }];
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-          try {
-            const evt = JSON.parse(jsonStr);
-            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
-              sectionText += evt.delta.text;
-              // Render with formatting
-              textDiv.innerHTML = formatSectionText(sectionText) + '<span class="ai-cursor"></span>';
-              // Auto-scroll
-              contentDiv.scrollTop = contentDiv.scrollHeight;
-            }
-          } catch (_) {}
-        }
-      }
+      const response = await callGeminiAPI(contents, {
+        model: 'gemini-2.0-flash',
+        maxTokens: length === 'short' ? 1000 : length === 'detailed' ? 2000 : 1500,
+        temperature: 0.3,
+      });
 
-      // Final render without cursor
+      // Extract text from Gemini response
+      const sectionText = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      // Render the section
       textDiv.innerHTML = formatSectionText(sectionText);
       _paperSections[sKey] = sectionText;
 
@@ -9270,7 +9199,7 @@ ${contentDiv.innerHTML}
 
 <div class="footnote">
   Paper generated by Meta-Analysis Workspace Pro v2 · PRISMA 2020 · Cochrane Handbook v6.3 · GRADE<br>
-  AI-assisted writing: Claude claude-sonnet-4-20250514 (Anthropic) — content based on extracted study data.<br>
+  AI-assisted writing: Google Gemini 2.0 Flash — content based on extracted study data.<br>
   ⚠ Authors must review, verify all statistics, and edit before submission. This is a draft, not a final manuscript.
 </div>
 
