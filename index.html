@@ -7836,7 +7836,6 @@ async function callGeminiAPI(contents, options = {}) {
         generationConfig: {
           temperature: options.temperature || 0.1,
           maxOutputTokens: options.maxTokens || 4096,
-          responseFormat: options.responseFormat || 'text',
         },
         safetySettings: [
           { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
