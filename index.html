@@ -7827,41 +7827,73 @@ async function callGeminiAPI(contents, options = {}) {
   const model = options.model || 'gemini-2.0-flash';
   const TARGET = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
 
-  try {
-    const resp = await fetch(TARGET, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: contents,
-        generationConfig: {
-          temperature: options.temperature || 0.1,
-          maxOutputTokens: options.maxTokens || 4096,
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        ],
-      }),
-    });
+  // Retry config for rate limit handling
+  const maxRetries = 5;
+  const baseDelay = 2000; // 2 seconds
 
-    if (!resp.ok) {
-      const error = await resp.json().catch(() => ({}));
-      if (resp.status === 400) throw new Error('Invalid request: ' + (error.error?.message || 'Bad request'));
-      if (resp.status === 401) throw new Error('Invalid API key — check at aistudio.google.com');
-      if (resp.status === 429) throw new Error('Rate limit exceeded — please wait a moment');
-      throw new Error(`HTTP ${resp.status}: ${error.error?.message || resp.statusText}`);
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const resp = await fetch(TARGET, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: contents,
+          generationConfig: {
+            temperature: options.temperature || 0.1,
+            maxOutputTokens: options.maxTokens || 4096,
+          },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+          ],
+        }),
+      });
+
+      if (!resp.ok) {
+        const error = await resp.json().catch(() => ({}));
+        
+        // Handle rate limit with retry
+        if (resp.status === 429) {
+          const retryAfter = resp.headers.get('Retry-After');
+          const waitTime = retryAfter 
+            ? parseInt(retryAfter) * 1000 
+            : baseDelay * Math.pow(2, attempt); // Exponential backoff
+          
+          if (attempt < maxRetries) {
+            console.log(`Rate limited. Retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries})`);
+            // Update status UI if available
+            const statusEl = document.getElementById('extractor-status');
+            if (statusEl) {
+              statusEl.innerHTML = `<span style="color:var(--amber);">⏳ Rate limited, retrying in ${Math.round(waitTime/1000)}s…</span>`;
+            }
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue; // Retry
+          }
+          throw new Error('Rate limit exceeded. Please wait ~60 seconds and try again. (Gemini free tier: 15 requests/minute)');
+        }
+        
+        if (resp.status === 400) throw new Error('Invalid request: ' + (error.error?.message || 'Bad request'));
+        if (resp.status === 401) throw new Error('Invalid API key — check at aistudio.google.com');
+        throw new Error(`HTTP ${resp.status}: ${error.error?.message || resp.statusText}`);
+      }
+
+      return await resp.json();
+
+    } catch (err) {
+      // Network errors - retry with backoff
+      if (err.name === 'TypeError' && err.message.includes('fetch') && attempt < maxRetries) {
+        const waitTime = baseDelay * Math.pow(2, attempt);
+        console.log(`Network error. Retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+      throw err;
     }
-
-    return await resp.json();
-
-  } catch (err) {
-    if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      throw new Error('Network error — check your internet connection');
-    }
-    throw err;
   }
+
+  throw new Error('Max retries exceeded');
 }
 
 function showApiKeySetup(context) {
