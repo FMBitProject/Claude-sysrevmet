@@ -11014,15 +11014,22 @@ document.addEventListener('keydown', function(e) {
     new ResizeObserver(updateScrollNav).observe(main);
     updateScrollNav();
     applyZoom();
+
+    // Auto-clear corrupt localStorage on load
+    ['extraction_history', 'meta_analysis_project', 'savedStudies', 'workspace_settings'].forEach(key => {
+      try {
+        const val = localStorage.getItem(key);
+        if (val) {
+          // Check if valid JSON
+          const parsed = JSON.parse(val);
+          console.log('✓ Loaded:', key);
+        }
+      } catch(e) {
+        console.warn('⚠ Corrupt localStorage key, clearing:', key);
+        localStorage.removeItem(key);
+      }
+    });
     
-    // Validate and reset corrupt extraction history
-    try {
-      const hist = localStorage.getItem('extraction_history');
-      if (hist) JSON.parse(hist);
-    } catch(e) {
-      console.warn('Extraction history corrupt, resetting');
-      localStorage.removeItem('extraction_history');
-    }
     renderExtractionHistory();
   }
 
@@ -11091,6 +11098,56 @@ function updateSidebarScrollBtns() {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
   else setTimeout(setup, 150);
+})();
+
+// Global error handler for JSON parse errors
+window.addEventListener('error', (e) => {
+  if (e.message.includes('JSON') || e.message.includes('Unexpected')) {
+    console.error('JSON Parse Error detected:', e.message);
+    
+    // Auto-clear corrupt localStorage
+    const corruptKeys = ['extraction_history', 'meta_analysis_project', 'savedStudies', 'workspace_settings', 'dashboard_timeline'];
+    corruptKeys.forEach(key => {
+      try {
+        const val = localStorage.getItem(key);
+        if (val) JSON.parse(val);
+      } catch(clearError) {
+        console.warn('Clearing corrupt key:', key);
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Show user-friendly message
+    const msg = '⚠ Corrupt data detected and cleared. Please refresh the page (F5).';
+    const toast = document.getElementById('app-toast');
+    if (toast) {
+      toast.style.display = 'flex';
+      toast.style.opacity = '1';
+      document.getElementById('toast-message').textContent = msg;
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.style.display = 'none', 300);
+      }, 8000);
+    } else {
+      alert(msg);
+    }
+  }
+});
+
+// Auto-validate all localStorage on load
+(function validateStorage() {
+  const keys = ['extraction_history', 'meta_analysis_project', 'savedStudies', 'workspace_settings', 'dashboard_timeline'];
+  keys.forEach(key => {
+    try {
+      const val = localStorage.getItem(key);
+      if (val) {
+        JSON.parse(val);
+      }
+    } catch(e) {
+      console.warn('⚠ Corrupt localStorage key, auto-clearing:', key);
+      localStorage.removeItem(key);
+    }
+  });
 })();
 
 </script>

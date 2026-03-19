@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fix Corrupt Data — MetaAnalysis Pro</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { padding: 40px; font-family: var(--font); background: var(--bg); }
+    .container { max-width: 600px; margin: 0 auto; }
+    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    h1 { font-size: 20px; margin-bottom: 8px; }
+    .status { padding: 12px; border-radius: 8px; margin: 12px 0; font-size: 12px; }
+    .status.ok { background: var(--greenl); color: #065f46; border: 1px solid var(--green); }
+    .status.error { background: var(--redl); color: #991b1b; border: 1px solid var(--red); }
+    .status.warn { background: var(--amberl); color: #92400e; border: 1px solid var(--amber); }
+    button { margin: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Fix Corrupt Data</h1>
+    <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">
+      This page will automatically detect and fix corrupt localStorage data that causes JSON parse errors.
+    </p>
+    
+    <div class="card">
+      <h2 style="font-size: 14px; margin-bottom: 12px;">📊 Storage Status</h2>
+      <div id="status-list"></div>
+    </div>
+    
+    <div class="card">
+      <h2 style="font-size: 14px; margin-bottom: 12px;">🛠️ Actions</h2>
+      <button class="btn btn-primary" onclick="clearAllData()">⚠ Clear All Data</button>
+      <button class="btn btn-ghost" onclick="location.href='index.html'">← Back to App</button>
+    </div>
+    
+    <div class="card">
+      <h2 style="font-size: 14px; margin-bottom: 12px;">ℹ️ Instructions</h2>
+      <ol style="font-size: 12px; color: var(--text2); line-height: 1.8; padding-left: 20px;">
+        <li>If you see corrupt data warnings above, click "Clear All Data"</li>
+        <li>Go back to the main app</li>
+        <li>Try the AI Extract feature again</li>
+        <li>If problem persists, clear browser cache (Ctrl+Shift+Delete)</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    const KEYS = ['extraction_history', 'meta_analysis_project', 'savedStudies', 'workspace_settings', 'dashboard_timeline', 'pico_history'];
+    
+    function checkStorage() {
+      const list = document.getElementById('status-list');
+      let html = '';
+      
+      KEYS.forEach(key => {
+        try {
+          const val = localStorage.getItem(key);
+          if (!val) {
+            html += `<div class="status ok">✓ ${key} — Empty (OK)</div>`;
+          } else {
+            JSON.parse(val);
+            html += `<div class="status ok">✓ ${key} — Valid JSON</div>`;
+          }
+        } catch(e) {
+          html += `<div class="status error">❌ ${key} — CORRUPT! Needs clearing</div>`;
+        }
+      });
+      
+      list.innerHTML = html;
+    }
+    
+    function clearAllData() {
+      if (!confirm('⚠️ This will delete ALL your data including:\n- Studies\n- Extraction history\n- Dashboard timeline\n- PICO history\n\nAre you sure?')) return;
+      
+      KEYS.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch(e) {}
+      });
+      
+      alert('✅ All data cleared! Click OK to go back to app.');
+      location.href = 'index.html';
+    }
+    
+    function clearCorruptOnly() {
+      KEYS.forEach(key => {
+        try {
+          const val = localStorage.getItem(key);
+          if (val) JSON.parse(val);
+        } catch(e) {
+          localStorage.removeItem(key);
+          console.log('Cleared corrupt:', key);
+        }
+      });
+      checkStorage();
+      alert('✅ Corrupt data cleared!');
+    }
+    
+    // Auto-check on load
+    checkStorage();
+  </script>
+</body>
+</html>

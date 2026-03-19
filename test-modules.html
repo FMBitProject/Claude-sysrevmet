@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Module Test — MetaAnalysis Pro</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body { padding: 20px; font-family: var(--font); }
+    .test-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .test-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .test-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12px; }
+    .test-icon { width: 20px; text-align: center; }
+    .success { color: var(--green); }
+    .error { color: var(--red); }
+    .pending { color: var(--amber); }
+    button { margin: 4px; }
+    #test-results { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1 style="font-size: 20px; margin-bottom: 20px;">🧪 Module Function Test</h1>
+  
+  <div class="test-section">
+    <div class="test-title">📦 Module Loading Test</div>
+    <div id="module-tests"></div>
+  </div>
+  
+  <div class="test-section">
+    <div class="test-title">⚡ Function Availability Test</div>
+    <div id="function-tests"></div>
+  </div>
+  
+  <div class="test-section">
+    <div class="test-title">🎯 Live Function Test</div>
+    <div id="live-tests"></div>
+    <button class="btn btn-primary btn-sm" onclick="runAllTests()" style="margin-top: 12px;">▶ Run All Tests</button>
+  </div>
+  
+  <div class="test-section">
+    <div class="test-title">📊 Test Results</div>
+    <div id="test-results"></div>
+  </div>
+
+  <script type="module">
+    // Import all modules
+    import { state, saveProject, loadProject } from './js/state.js';
+    import { makeStudyObj, initRoB, isObservational, isRCT, designCategory } from './js/study-manager.js';
+    import { getApiKey, setApiKey, callGroqAPI } from './js/ai-extractor.js';
+    import { runMetaAnalysis } from './js/statistics.js';
+    import { renderForestPlot, downloadForestSVG } from './js/forest-plot.js';
+    import { renderFunnelPlot, renderEggerDetail } from './js/funnel-plot.js';
+    import { calcGradeScore, renderGradeOutcomes, createGradeOutcome } from './js/grade.js';
+    import { exportJSON, exportCSV, exportHTMLReport } from './js/export.js';
+    import { renderRoBHeatmap, renderTrafficLight } from './js/rob-visual.js';
+    import { renderPrismaFlow, downloadPrismaSVG } from './js/prisma.js';
+    import { renderDashboard, logTimeline, logSearch } from './js/dashboard.js';
+    import { saveEligibility, renderEligibilitySummary } from './js/eligibility.js';
+    import { runComprehensiveSearch, deduplicateResults } from './js/search-engines.js';
+    
+    console.log('✅ All modules imported successfully');
+    
+    // Test results storage
+    window.testResults = {
+      modules: [],
+      functions: [],
+      live: []
+    };
+    
+    // Module loading test
+    const modules = [
+      { name: 'state.js', test: () => typeof state !== 'undefined' },
+      { name: 'study-manager.js', test: () => typeof makeStudyObj !== 'undefined' },
+      { name: 'ai-extractor.js', test: () => typeof getApiKey !== 'undefined' },
+      { name: 'statistics.js', test: () => typeof runMetaAnalysis !== 'undefined' },
+      { name: 'forest-plot.js', test: () => typeof renderForestPlot !== 'undefined' },
+      { name: 'funnel-plot.js', test: () => typeof renderFunnelPlot !== 'undefined' },
+      { name: 'grade.js', test: () => typeof calcGradeScore !== 'undefined' },
+      { name: 'export.js', test: () => typeof exportJSON !== 'undefined' },
+      { name: 'rob-visual.js', test: () => typeof renderRoBHeatmap !== 'undefined' },
+      { name: 'prisma.js', test: () => typeof renderPrismaFlow !== 'undefined' },
+      { name: 'dashboard.js', test: () => typeof renderDashboard !== 'undefined' },
+      { name: 'eligibility.js', test: () => typeof saveEligibility !== 'undefined' },
+      { name: 'search-engines.js', test: () => typeof runComprehensiveSearch !== 'undefined' }
+    ];
+    
+    // Render module tests
+    const moduleTestsDiv = document.getElementById('module-tests');
+    moduleTestsDiv.innerHTML = modules.map(m => `
+      <div class="test-item">
+        <span class="test-icon ${m.test() ? 'success' : 'error'}">${m.test() ? '✅' : '❌'}</span>
+        <span>${m.name}</span>
+        <span style="margin-left: auto; color: ${m.test() ? 'var(--green)' : 'var(--red)'}">${m.test() ? 'Loaded' : 'Failed'}</span>
+      </div>
+    `).join('');
+    
+    // Function availability test
+    const functions = [
+      { name: 'makeStudyObj', fn: makeStudyObj },
+      { name: 'initRoB', fn: initRoB },
+      { name: 'isObservational', fn: isObservational },
+      { name: 'isRCT', fn: isRCT },
+      { name: 'designCategory', fn: designCategory },
+      { name: 'getApiKey', fn: getApiKey },
+      { name: 'setApiKey', fn: setApiKey },
+      { name: 'runMetaAnalysis', fn: runMetaAnalysis },
+      { name: 'renderForestPlot', fn: renderForestPlot },
+      { name: 'downloadForestSVG', fn: downloadForestSVG },
+      { name: 'renderFunnelPlot', fn: renderFunnelPlot },
+      { name: 'renderEggerDetail', fn: renderEggerDetail },
+      { name: 'calcGradeScore', fn: calcGradeScore },
+      { name: 'renderGradeOutcomes', fn: renderGradeOutcomes },
+      { name: 'createGradeOutcome', fn: createGradeOutcome },
+      { name: 'exportJSON', fn: exportJSON },
+      { name: 'exportCSV', fn: exportCSV },
+      { name: 'exportHTMLReport', fn: exportHTMLReport },
+      { name: 'renderRoBHeatmap', fn: renderRoBHeatmap },
+      { name: 'renderTrafficLight', fn: renderTrafficLight },
+      { name: 'renderPrismaFlow', fn: renderPrismaFlow },
+      { name: 'downloadPrismaSVG', fn: downloadPrismaSVG },
+      { name: 'renderDashboard', fn: renderDashboard },
+      { name: 'logTimeline', fn: logTimeline },
+      { name: 'logSearch', fn: logSearch },
+      { name: 'saveEligibility', fn: saveEligibility },
+      { name: 'renderEligibilitySummary', fn: renderEligibilitySummary },
+      { name: 'runComprehensiveSearch', fn: runComprehensiveSearch },
+      { name: 'deduplicateResults', fn: deduplicateResults }
+    ];
+    
+    // Render function tests
+    const functionTestsDiv = document.getElementById('function-tests');
+    functionTestsDiv.innerHTML = functions.map(f => `
+      <div class="test-item">
+        <span class="test-icon ${typeof f.fn === 'function' ? 'success' : 'error'}">${typeof f.fn === 'function' ? '✅' : '❌'}</span>
+        <span>${f.name}()</span>
+        <span style="margin-left: auto; color: ${typeof f.fn === 'function' ? 'var(--green)' : 'var(--red)'}">${typeof f.fn === 'function' ? 'Available' : 'Missing'}</span>
+      </div>
+    `).join('');
+    
+    // Store for global access
+    window.runAllTests = () => {
+      const resultsDiv = document.getElementById('test-results');
+      const liveTestsDiv = document.getElementById('live-tests');
+      
+      let passed = 0;
+      let failed = 0;
+      let liveResults = [];
+      
+      // Test 1: Create study object
+      try {
+        const study = makeStudyObj({ author: 'Test', year: '2024' });
+        if (study.id && study.author === 'Test') {
+          passed++;
+          liveResults.push({ name: 'makeStudyObj()', status: '✅ Pass', detail: 'Created study object' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'makeStudyObj()', status: '❌ Fail', detail: 'Invalid object' });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'makeStudyObj()', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 2: Study design classification
+      try {
+        const rctCheck = isRCT('RCT');
+        const obsCheck = isObservational('Cohort-Prospective');
+        const catCheck = designCategory('RCT') === 'RCT';
+        
+        if (rctCheck && obsCheck && catCheck) {
+          passed++;
+          liveResults.push({ name: 'Design Classification', status: '✅ Pass', detail: 'RCT/Obs classification works' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'Design Classification', status: '❌ Fail', detail: 'Classification error' });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'Design Classification', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 3: API Key functions
+      try {
+        setApiKey('test_key_123');
+        const key = getApiKey();
+        if (key === 'test_key_123') {
+          passed++;
+          liveResults.push({ name: 'API Key Functions', status: '✅ Pass', detail: 'Get/Set API key works' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'API Key Functions', status: '❌ Fail', detail: 'Key mismatch' });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'API Key Functions', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 4: GRADE outcome creation
+      try {
+        const outcome = createGradeOutcome('Test Outcome');
+        if (outcome.name && outcome.id) {
+          passed++;
+          liveResults.push({ name: 'createGradeOutcome()', status: '✅ Pass', detail: 'Created GRADE outcome' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'createGradeOutcome()', status: '❌ Fail', detail: 'Invalid outcome' });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'createGradeOutcome()', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 5: GRADE score calculation
+      try {
+        const testOutcome = {
+          evidence_type: 'rct',
+          rob: 'Not serious',
+          inconsistency: 'Not serious',
+          indirectness: 'Not serious',
+          imprecision: 'Not serious',
+          pubBias: 'Undetected'
+        };
+        const score = calcGradeScore(testOutcome);
+        if (score === 4) { // RCT starts at 4
+          passed++;
+          liveResults.push({ name: 'calcGradeScore()', status: '✅ Pass', detail: 'Score calculation correct (High)' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'calcGradeScore()', status: '❌ Fail', detail: `Expected 4, got ${score}` });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'calcGradeScore()', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 6: Traffic light rendering
+      try {
+        const tl = renderTrafficLight('Low');
+        if (tl.includes('traffic-light') && tl.includes('#16a34a')) {
+          passed++;
+          liveResults.push({ name: 'renderTrafficLight()', status: '✅ Pass', detail: 'Traffic light HTML generated' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'renderTrafficLight()', status: '❌ Fail', detail: 'Invalid HTML' });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'renderTrafficLight()', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 7: Timeline logging
+      try {
+        logTimeline('test', 'Test Event', 'Testing timeline');
+        const events = JSON.parse(localStorage.getItem('dashboard_timeline') || '[]');
+        if (events.length > 0 && events[0].title === 'Test Event') {
+          passed++;
+          liveResults.push({ name: 'logTimeline()', status: '✅ Pass', detail: 'Event logged to localStorage' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'logTimeline()', status: '❌ Fail', detail: 'Event not logged' });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'logTimeline()', status: '❌ Error', detail: e.message });
+      }
+      
+      // Test 8: Deduplication
+      try {
+        const studies = [
+          { doi: '10.1234/test', title: 'Test Study' },
+          { doi: '10.1234/test', title: 'Test Study' }, // duplicate
+          { doi: '10.5678/other', title: 'Other Study' }
+        ];
+        const deduped = deduplicateResults(studies);
+        if (deduped.length === 2) {
+          passed++;
+          liveResults.push({ name: 'deduplicateResults()', status: '✅ Pass', detail: 'Duplicates removed correctly' });
+        } else {
+          failed++;
+          liveResults.push({ name: 'deduplicateResults()', status: '❌ Fail', detail: `Expected 2, got ${deduped.length}` });
+        }
+      } catch(e) {
+        failed++;
+        liveResults.push({ name: 'deduplicateResults()', status: '❌ Error', detail: e.message });
+      }
+      
+      // Render live test results
+      liveTestsDiv.innerHTML = liveResults.map(r => `
+        <div class="test-item">
+          <span class="test-icon">${r.status.includes('✅') ? '✅' : '❌'}</span>
+          <span style="flex:1">${r.name}</span>
+          <span style="color: ${r.status.includes('✅') ? 'var(--green)' : 'var(--red)'}">${r.status}</span>
+          <span style="color: var(--text3); font-size: 10px; margin-left: 8px;">${r.detail}</span>
+        </div>
+      `).join('');
+      
+      // Render summary
+      const total = passed + failed;
+      const percentage = total > 0 ? Math.round((passed / total) * 100) : 0;
+      
+      resultsDiv.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+          <div class="stat-box" style="background:${percentage === 100 ? 'var(--greenl)' : percentage >= 80 ? 'var(--amberl)' : 'var(--redl)'}">
+            <div class="stat-label">Pass Rate</div>
+            <div class="stat-value" style="color:${percentage === 100 ? 'var(--green)' : percentage >= 80 ? 'var(--amber)' : 'var(--red)'}">${percentage}%</div>
+            <div class="stat-sub">${passed}/${total} tests passed</div>
+          </div>
+          <div class="stat-box" style="background:var(--greenl)">
+            <div class="stat-label">Passed</div>
+            <div class="stat-value" style="color:var(--green)">${passed}</div>
+            <div class="stat-sub">Tests successful</div>
+          </div>
+          <div class="stat-box" style="background:var(--redl)">
+            <div class="stat-label">Failed</div>
+            <div class="stat-value" style="color:var(--red)">${failed}</div>
+            <div class="stat-sub">Tests failed</div>
+          </div>
+        </div>
+        ${percentage === 100 ? '<div class="alert alert-success">🎉 All tests passed! All modules are working correctly.</div>' : 
+          percentage >= 80 ? '<div class="alert alert-warn">⚠ Most tests passed. Check failed tests above.</div>' :
+          '<div class="alert alert-danger">❌ Many tests failed. Please check module imports.</div>'}
+      `;
+      
+      // Store results
+      window.testResults.live = liveResults;
+      window.testResults.summary = { passed, failed, total, percentage };
+    };
+    
+    // Auto-run tests on load
+    setTimeout(() => {
+      console.log('🧪 Running automatic tests...');
+      window.runAllTests();
+    }, 500);
+  </script>
+</body>
+</html>
