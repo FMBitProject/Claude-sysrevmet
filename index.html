@@ -8141,6 +8141,12 @@ async function runAIExtractor() {
     return;
   }
 
+  // Check API key for file mode
+  if (hasFile && !getApiKey()) {
+    showApiKeySetup('extractor');
+    return;
+  }
+
   const btn       = document.getElementById('ai-extract-btn');
   const resultDiv = document.getElementById('ai-extract-result');
   const statusEl  = document.getElementById('extractor-status');
@@ -8205,7 +8211,7 @@ JSON schema (use null for any field not found):
   "pre_ci_upper": number or null,
   "effect_measure": "MD | SMD | OR | RR | HR | RD | null",
   "confidence_level": 95,
-  "notes": "what was extracted and from which section, any ambiguities"
+  "notes": "what was extracted and which section was used, any ambiguities"
 }`;
 
   const userContent = [];
@@ -8228,25 +8234,22 @@ JSON schema (use null for any field not found):
     text: `Extract all meta-analysis outcome data from this paper.${hint ? '\nFocus on outcome: ' + hint : ''}\nReturn ONLY the JSON object.`
   });
 
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userContent }]
-      })
-    });
+  const requestBody = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 2000,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userContent }]
+  };
 
-    if (!resp.ok) {
-      const e = await resp.json().catch(()=>({}));
-      throw new Error(e.error?.message || `HTTP ${resp.status}`);
-    }
+  try {
+    statusEl.innerHTML = '<span style="color:var(--accent);">📡 Connecting to Claude API…</span>';
+    const resp = await callAnthropicAPI(requestBody);
 
     const data = await resp.json();
     const raw  = data.content?.map(b => b.text||'').join('').trim();
+    
+    if (!raw) throw new Error('No content in response');
+    
     const clean = raw.replace(/```json|```/g,'').trim();
     const extracted = JSON.parse(clean);
 
@@ -8258,9 +8261,17 @@ JSON schema (use null for any field not found):
     statusEl.innerHTML = `<span style="color:var(--green);">✅ AI extracted ${found}/11 values from ${fileData.name}</span>`;
 
   } catch(err) {
-    statusEl.innerHTML = `<span style="color:var(--red);">❌ ${err.message}</span>`;
-    showToast('❌ AI extraction failed: ' + err.message);
-    console.error(err);
+    let errMsg = err.message;
+    if (err.message === 'API_KEY_MISSING') {
+      errMsg = 'API key not set. Please enter your Anthropic API key.';
+      showApiKeySetup('extractor');
+    } else if (err.message === 'CORS_BLOCKED') {
+      errMsg = 'Request blocked by CORS. Try: 1) Use a local server, 2) Install CORS disable extension, or 3) Paste abstract text instead.';
+      showCorsHelp();
+    }
+    statusEl.innerHTML = `<span style="color:var(--red);">❌ ${errMsg}</span>`;
+    showToast('❌ AI extraction failed: ' + errMsg);
+    console.error('AI Extractor error:', err);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '🤖 Extract Data with AI';
