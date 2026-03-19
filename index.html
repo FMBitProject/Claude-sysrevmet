@@ -2018,6 +2018,15 @@
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ai-extract-result').style.display='none'">Cancel</button>
       </div>
     </div>
+
+    <!-- Extraction History -->
+    <div style="margin-top:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);">📜 Extraction History</div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleExtractionHistory()">📋 View History</button>
+      </div>
+      <div id="extraction-history-list" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:300px;overflow-y:auto;"></div>
+    </div>
   </div>
 
   <div class="card mt16">
@@ -7825,7 +7834,7 @@ async function callGroqAPI(messages, options = {}) {
   const key = getApiKey();
   if (!key) throw new Error('API_KEY_MISSING');
 
-  const model = options.model || 'llama-3.1-70b-versatile';
+  const model = options.model || 'llama-3.3-70b-versatile';
   const TARGET = 'https://api.groq.com/openai/v1/chat/completions';
 
   const maxRetries = 3;
@@ -8201,7 +8210,7 @@ JSON schema (use null for any field not found):
         { role: 'user', content: userPrompt }
       ],
       {
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         maxTokens: 2000,
         temperature: 0.1,
       }
@@ -8219,6 +8228,9 @@ JSON schema (use null for any field not found):
     showMissingFieldsAlert(extracted);
     const found = countFoundFields(extracted);
     statusEl.innerHTML = `<span style="color:var(--green);">✅ AI extracted ${found}/11 values</span>`;
+    
+    // Save to history
+    saveExtractionHistory(extracted, pasteText.substring(0, 500));
 
   } catch(err) {
     statusEl.innerHTML = `<span style="color:var(--red);">❌ ${err.message}</span>`;
@@ -8260,6 +8272,123 @@ function showMissingFieldsAlert(extracted) {
   } else {
     missingDiv.style.display = 'none';
   }
+}
+
+// ===========================
+// EXTRACTION HISTORY
+// ===========================
+function saveExtractionHistory(extracted, sourceText) {
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    history = []; // Reset jika corrupt
+  }
+  const entry = {
+    id: Date.now(),
+    timestamp: new Date().toISOString(),
+    data: extracted,
+    sourcePreview: sourceText.substring(0, 200).replace(/\n/g, ' ')
+  };
+  history.unshift(entry);
+  // Keep only last 20 entries
+  if (history.length > 20) history.splice(20);
+  localStorage.setItem('extraction_history', JSON.stringify(history));
+  renderExtractionHistory();
+}
+
+function toggleExtractionHistory() {
+  const list = document.getElementById('extraction-history-list');
+  if (list.style.display === 'none') {
+    renderExtractionHistory();
+    list.style.display = 'block';
+  } else {
+    list.style.display = 'none';
+  }
+}
+
+function renderExtractionHistory() {
+  const list = document.getElementById('extraction-history-list');
+  if (!list) return;
+  
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    history = []; // Reset jika corrupt
+    localStorage.removeItem('extraction_history');
+  }
+  
+  if (history.length === 0) {
+    list.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:20px;text-align:center;">No extraction history yet. Run AI extract to see history here.</div>';
+    return;
+  }
+  
+  list.innerHTML = history.map(entry => {
+    const date = new Date(entry.timestamp);
+    const dateStr = date.toLocaleString();
+    const d = entry.data;
+    const author = d.author || 'Unknown';
+    const year = d.year || '?';
+    const found = countFoundFields(d);
+    
+    return `<div style="padding:10px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;background:var(--bg2);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text);">${author} (${year})</div>
+        <div style="font-size:10px;color:var(--text3);">${dateStr}</div>
+      </div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:4px;">📊 ${found}/11 fields extracted</div>
+      <div style="font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"${entry.sourcePreview}"</div>
+      <div style="margin-top:6px;display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 6px;" onclick="loadExtractionFromHistory(${entry.id})">📥 Load</button>
+        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 6px;" onclick="deleteExtractionHistory(${entry.id})">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadExtractionFromHistory(id) {
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    showToast('❌ History corrupt - resetting');
+    localStorage.removeItem('extraction_history');
+    return;
+  }
+  const entry = history.find(h => h.id === id);
+  if (!entry) {
+    showToast('❌ History entry not found');
+    return;
+  }
+
+  _aiExtracted = entry.data;
+  renderAIPreview(entry.data);
+
+  const resultDiv = document.getElementById('ai-extract-result');
+  if (resultDiv) {
+    resultDiv.style.display = 'block';
+    showMissingFieldsAlert(entry.data);
+  }
+
+  document.getElementById('extraction-history-list').style.display = 'none';
+  showToast('✅ Extraction loaded from history');
+}
+
+function deleteExtractionHistory(id) {
+  let history;
+  try {
+    history = JSON.parse(localStorage.getItem('extraction_history') || '[]');
+  } catch(e) {
+    showToast('❌ History corrupt - resetting');
+    localStorage.removeItem('extraction_history');
+    renderExtractionHistory();
+    return;
+  }
+  const filtered = history.filter(h => h.id !== id);
+  localStorage.setItem('extraction_history', JSON.stringify(filtered));
+  renderExtractionHistory();
+  showToast('🗑️ Entry deleted');
 }
 
 
@@ -9074,7 +9203,7 @@ Always base content on the data provided. Never fabricate statistical values.`;
           { role: 'user', content: prompt }
         ],
         {
-          model: 'llama-3.1-70b-versatile',
+          model: 'llama-3.3-70b-versatile',
           maxTokens: length === 'short' ? 1000 : length === 'detailed' ? 2000 : 1500,
           temperature: 0.3,
         }
@@ -10885,6 +11014,16 @@ document.addEventListener('keydown', function(e) {
     new ResizeObserver(updateScrollNav).observe(main);
     updateScrollNav();
     applyZoom();
+    
+    // Validate and reset corrupt extraction history
+    try {
+      const hist = localStorage.getItem('extraction_history');
+      if (hist) JSON.parse(hist);
+    } catch(e) {
+      console.warn('Extraction history corrupt, resetting');
+      localStorage.removeItem('extraction_history');
+    }
+    renderExtractionHistory();
   }
 
   if (document.readyState === 'loading') {
