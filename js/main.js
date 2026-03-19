@@ -20,6 +20,7 @@ import { getRobStyle, renderTrafficLight, renderRoBHeatmap, exportRoBTableHTML }
 import { renderPrismaFlow, downloadPrismaSVG, getPrismaDataFromState } from './prisma.js';
 import { renderDashboard, logTimeline, logSearch, logImport, logStudy, logStats } from './dashboard.js';
 import { saveEligibility, renderEligibilitySummary, renderCriteriaHistory, restoreCriteriaVersion } from './eligibility.js';
+import { searchDOAJ, searchSciELO, searchPubMedCentral, searchMedRxiv, searchCORE, searchAllAdditional } from './additional-search.js';
 
 // ===========================
 // EXPORT TO WINDOW FOR HTML HANDLERS
@@ -287,6 +288,14 @@ function exportToWindow() {
   window.renderEligibilitySummary = renderEligibilitySummary;
   window.renderCriteriaHistory = renderCriteriaHistory;
   window.restoreCriteriaVersion = restoreCriteriaVersion;
+
+  // Additional search functions
+  window.searchDOAJ = searchDOAJ;
+  window.searchSciELO = searchSciELO;
+  window.searchPubMedCentral = searchPubMedCentral;
+  window.searchMedRxiv = searchMedRxiv;
+  window.searchCORE = searchCORE;
+  window.searchAllAdditional = searchAllAdditional;
 }
 
 // ===========================

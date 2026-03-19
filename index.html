@@ -8165,18 +8165,43 @@ async function runAIExtractorWithFile(fileData, hint, btn, resultDiv, statusEl) 
 }
 
 async function runAIExtractorWithText(pasteText, hint, btn, resultDiv, statusEl) {
-  // Improved system prompt for better extraction from narrative text
+  // Improved system prompt with CLEAR distinction between continuous and categorical data
   const systemPrompt = `You are a biomedical data extraction expert. Extract data from clinical study text.
 
-IMPORTANT RULES:
-1. Extract ONLY explicit numerical data - never estimate or invent
-2. If data not found, use null (not "N/A" or empty string)
-3. For intervention/control groups: look for treatment vs comparison groups
-4. For continuous data: need N, mean, SD for each group
-5. For dichotomous: need events/total for each group
-6. Identify study design from keywords (randomized, cohort, case-control, etc.)
+⚠️ CRITICAL RULES — READ CAREFULLY:
 
-Respond in valid JSON format. If you cannot find certain fields, set them to null.
+1. **CONTINUOUS DATA** (Mean ± SD format):
+   - Look for patterns like: "65.3 ± 10.2" or "65.3±10.2" or "65.3 (SD 10.2)"
+   - The number AFTER ± is STANDARD DEVIATION (SD)
+   - Example: "Age was 58.3 ± 10.2 years" → mean=58.3, SD=10.2
+   - Example: "BMI 28.4±4.1 kg/m²" → mean=28.4, SD=4.1
+
+2. **CATEGORICAL DATA** (Percentages %):
+   - Look for patterns like: "60%" or "60 out of 120" or "50% (n=60)"
+   - **NEVER put percentages in SD field!**
+   - Example: "50% were male" → This is CATEGORICAL, not continuous
+   - Example: "Diabetes: 45% vs 42%" → These are proportions, NOT mean±SD
+   - If you see "%", DO NOT extract as SD!
+
+3. **HOW TO DISTINGUISH**:
+   - Has ± symbol? → CONTINUOUS → Extract mean and SD
+   - Has % symbol? → CATEGORICAL → Extract as events/total (dichotomous)
+   - Has "mean" or "average"? → CONTINUOUS → Look for SD
+   - Has "proportion" or "percentage"? → CATEGORICAL → Look for n/N
+
+4. **COMMON MISTAKES TO AVOID**:
+   ❌ WRONG: "50%" → SD=50 (WRONG! This is a percentage, not SD!)
+   ✅ RIGHT: "50%" → Categorical data, use events/total fields
+   ❌ WRONG: "65.3 ± 10.2%" → SD=10.2 (WRONG! The ± is for the percentage CI)
+   ✅ RIGHT: "65.3 ± 10.2 mg/dL" → mean=65.3, SD=10.2 (CORRECT!)
+
+5. **STUDY DESIGN IDENTIFICATION**:
+   - "randomized" or "randomised" → RCT
+   - "cohort" or "prospective" or "retrospective" → Cohort
+   - "case-control" → Case-Control
+   - "cross-sectional" → Cross-sectional
+
+Respond in valid JSON format. Use null for missing fields.
 
 JSON Schema:
 {
@@ -8187,26 +8212,39 @@ JSON Schema:
   "pmid": "PMID or null",
   "doi": "DOI or null",
   "design": "RCT|Quasi-RCT|Cluster-RCT|Crossover|Cohort-Prospective|Cohort-Retrospective|Case-Control|Cross-sectional|Registry|null",
+  
   "outcome_type": "continuous|dichotomous|preEntered|null",
+  
+  // CONTINUOUS DATA (for Mean ± SD format):
   "n_intervention": number|null,
   "mean_intervention": number|null,
   "sd_intervention": number|null,
   "n_control": number|null,
   "mean_control": number|null,
   "sd_control": number|null,
+  
+  // CATEGORICAL/DICHOTOMOUS DATA (for events/total or %):
   "events_intervention": number|null,
   "total_intervention": number|null,
   "events_control": number|null,
   "total_control": number|null,
+  
+  // PRE-ENTERED EFFECT SIZES (HR, OR, RR with CI):
   "pre_es": number|null,
   "pre_ci_lower": number|null,
   "pre_ci_upper": number|null,
   "effect_measure": "MD|SMD|OR|RR|HR|RD|null",
+  
   "confidence_level": 95,
-  "notes": "Brief description of what was extracted"
+  "notes": "Brief description of what was extracted. Mention if data was continuous (mean±SD) or categorical (events/total)."
 }`;
 
   const userPrompt = `Extract data from this clinical study text.${hint ? '\n\nFOCUS ON: ' + hint : ''}
+
+⚠️ REMEMBER:
+- Numbers with ± are CONTINUOUS (mean ± SD)
+- Numbers with % are CATEGORICAL (proportions)
+- NEVER put % values in SD fields!
 
 TEXT TO ANALYZE:
 ${pasteText}
@@ -8261,6 +8299,49 @@ Return ONLY valid JSON. Use null for missing fields.`;
       throw new Error('Invalid extraction result');
     }
 
+    // === VALIDATION: Check for common AI extraction errors ===
+    
+    // 1. Check if SD values look like percentages (>100 or suspicious)
+    const sdFields = ['sd_intervention', 'sd_control'];
+    const suspiciousSD = [];
+    
+    sdFields.forEach(field => {
+      const val = extracted[field];
+      if (val !== null && val !== undefined) {
+        // SD should typically be < mean and < 100 for most clinical measures
+        if (val > 100) {
+          suspiciousSD.push(`${field}=${val} (looks like percentage, not SD)`);
+        }
+        // Check if SD is similar to mean (possible % confusion)
+        const meanField = field.replace('sd_', 'mean_');
+        const meanVal = extracted[meanField];
+        if (meanVal && val > meanVal * 0.8 && val < meanVal * 1.2) {
+          suspiciousSD.push(`${field}=${val} is similar to ${meanField}=${meanVal} (possible % confusion)`);
+        }
+      }
+    });
+    
+    if (suspiciousSD.length > 0) {
+      console.warn('⚠️ Suspicious SD values detected:', suspiciousSD);
+      // Add warning to notes
+      extracted._validationWarnings = suspiciousSD;
+    }
+    
+    // 2. Check outcome type consistency
+    if (extracted.outcome_type === 'continuous') {
+      // Should have mean and SD
+      if (!extracted.mean_intervention && !extracted.mean_control) {
+        console.warn('⚠️ Outcome type is continuous but no mean values found');
+      }
+    } else if (extracted.outcome_type === 'dichotomous') {
+      // Should have events/total
+      if (!extracted.events_intervention && !extracted.events_control) {
+        console.warn('⚠️ Outcome type is dichotomous but no events found');
+      }
+    }
+    
+    // === END VALIDATION ===
+
     _aiExtracted = extracted;
     renderAIPreview(extracted);
     resultDiv.style.display = 'block';
@@ -8302,12 +8383,33 @@ function showMissingFieldsAlert(extracted) {
     .map(([,label]) => label);
   const missingDiv = document.getElementById('ai-missing-fields');
   if (!missingDiv) return;
+  
+  // Build missing fields warning
+  let html = '';
   if (missing.length > 0) {
-    missingDiv.style.display = 'block';
-    missingDiv.innerHTML = `
+    html += `
       <strong>⚠ Not found in this paper:</strong>
       <div style="margin-top:4px;font-size:10px;font-family:var(--mono);line-height:1.8;">${missing.join(' &nbsp;·&nbsp; ')}</div>
       <div style="margin-top:5px;font-size:10px;">These values were not reported or not detected. Check the Results section / tables and enter manually.</div>`;
+  }
+  
+  // Add validation warnings (percentage in SD, etc.)
+  if (extracted._validationWarnings && extracted._validationWarnings.length > 0) {
+    html += `
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--amber);">
+        <strong style="color:var(--red);">⚠️ Potential Data Type Confusion Detected:</strong>
+        <ul style="margin:6px 0 0 16px;font-size:10px;line-height:1.8;color:#991b1b;">
+          ${extracted._validationWarnings.map(w => `<li>${w}</li>`).join('')}
+        </ul>
+        <div style="margin-top:6px;font-size:10px;color:#991b1b;">
+          <strong>Check:</strong> SD values should NOT be percentages. If you see % in the original text, use Events/Total fields instead of Mean/SD.
+        </div>
+      </div>`;
+  }
+  
+  if (html) {
+    missingDiv.style.display = 'block';
+    missingDiv.innerHTML = html;
   } else {
     missingDiv.style.display = 'none';
   }
