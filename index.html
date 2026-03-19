@@ -8165,41 +8165,53 @@ async function runAIExtractorWithFile(fileData, hint, btn, resultDiv, statusEl) 
 }
 
 async function runAIExtractorWithText(pasteText, hint, btn, resultDiv, statusEl) {
-  // Build system prompt for data extraction
-  const systemPrompt = `You are a biomedical data extraction assistant for systematic reviews and meta-analyses.
-Extract ALL numerical outcome data from the text below.
-Never invent or estimate values — only extract what is explicitly stated.
-Respond ONLY with valid JSON — no markdown, no backticks, no explanation.
+  // Improved system prompt for better extraction from narrative text
+  const systemPrompt = `You are a biomedical data extraction expert. Extract data from clinical study text.
 
-JSON schema (use null for any field not found):
+IMPORTANT RULES:
+1. Extract ONLY explicit numerical data - never estimate or invent
+2. If data not found, use null (not "N/A" or empty string)
+3. For intervention/control groups: look for treatment vs comparison groups
+4. For continuous data: need N, mean, SD for each group
+5. For dichotomous: need events/total for each group
+6. Identify study design from keywords (randomized, cohort, case-control, etc.)
+
+Respond in valid JSON format. If you cannot find certain fields, set them to null.
+
+JSON Schema:
 {
-  "author": "First author surname et al., or null",
-  "year": "4-digit year as string, or null",
-  "title": "paper title, or null",
-  "journal": "journal name, or null",
-  "pmid": "PMID as string, or null",
-  "doi": "DOI string, or null",
-  "design": "RCT | Quasi-RCT | Cluster-RCT | Crossover | Cohort-Prospective | Cohort-Retrospective | Case-Control | Cross-sectional | Registry | null",
-  "outcome_type": "continuous | dichotomous | preEntered",
-  "n_intervention": number or null,
-  "mean_intervention": number or null,
-  "sd_intervention": number or null,
-  "n_control": number or null,
-  "mean_control": number or null,
-  "sd_control": number or null,
-  "events_intervention": number or null,
-  "total_intervention": number or null,
-  "events_control": number or null,
-  "total_control": number or null,
-  "pre_es": number or null,
-  "pre_ci_lower": number or null,
-  "pre_ci_upper": number or null,
-  "effect_measure": "MD | SMD | OR | RR | HR | RD | null",
+  "author": "First author surname + et al. or null",
+  "year": "4-digit year or null",
+  "title": "Paper title or null",
+  "journal": "Journal name or null",
+  "pmid": "PMID or null",
+  "doi": "DOI or null",
+  "design": "RCT|Quasi-RCT|Cluster-RCT|Crossover|Cohort-Prospective|Cohort-Retrospective|Case-Control|Cross-sectional|Registry|null",
+  "outcome_type": "continuous|dichotomous|preEntered|null",
+  "n_intervention": number|null,
+  "mean_intervention": number|null,
+  "sd_intervention": number|null,
+  "n_control": number|null,
+  "mean_control": number|null,
+  "sd_control": number|null,
+  "events_intervention": number|null,
+  "total_intervention": number|null,
+  "events_control": number|null,
+  "total_control": number|null,
+  "pre_es": number|null,
+  "pre_ci_lower": number|null,
+  "pre_ci_upper": number|null,
+  "effect_measure": "MD|SMD|OR|RR|HR|RD|null",
   "confidence_level": 95,
-  "notes": "what was extracted and which section was used"
+  "notes": "Brief description of what was extracted"
 }`;
 
-  const userPrompt = `Extract all meta-analysis outcome data from this text.${hint ? '\nFocus on: ' + hint : ''}\n\nReturn ONLY the JSON object.\n\n---\n\n${pasteText}`;
+  const userPrompt = `Extract data from this clinical study text.${hint ? '\n\nFOCUS ON: ' + hint : ''}
+
+TEXT TO ANALYZE:
+${pasteText}
+
+Return ONLY valid JSON. Use null for missing fields.`;
 
   try {
     statusEl.innerHTML = '<span style="color:var(--accent);">⚡ Sending to Groq Cloud…</span>';
@@ -8211,16 +8223,43 @@ JSON schema (use null for any field not found):
       ],
       {
         model: 'llama-3.3-70b-versatile',
-        maxTokens: 2000,
-        temperature: 0.1,
+        maxTokens: 2500,
+        temperature: 0.2, // Slightly higher for better narrative understanding
       }
     );
 
     const raw = response.choices?.[0]?.message?.content;
-    if (!raw) throw new Error('No content in response');
+    if (!raw) throw new Error('No content in AI response');
 
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const extracted = JSON.parse(clean);
+    // Clean response - remove markdown, explanations, etc.
+    let clean = raw.trim();
+    
+    // Remove markdown code blocks
+    clean = clean.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+    
+    // Try to find JSON object in response
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      clean = jsonMatch[0];
+    }
+    
+    // Parse JSON with better error handling
+    let extracted;
+    try {
+      extracted = JSON.parse(clean);
+    } catch(parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Raw response:', raw);
+      console.error('Cleaned:', clean);
+      
+      // Show user-friendly error
+      throw new Error('AI returned invalid JSON. This can happen with complex text formats. Try: 1) Pasting more structured data (tables/results section), 2) Using shorter text, or 3) Entering data manually.');
+    }
+
+    // Validate extracted data has minimum required fields
+    if (!extracted || typeof extracted !== 'object') {
+      throw new Error('Invalid extraction result');
+    }
 
     _aiExtracted = extracted;
     renderAIPreview(extracted);
@@ -8228,7 +8267,7 @@ JSON schema (use null for any field not found):
     showMissingFieldsAlert(extracted);
     const found = countFoundFields(extracted);
     statusEl.innerHTML = `<span style="color:var(--green);">✅ AI extracted ${found}/11 values</span>`;
-    
+
     // Save to history
     saveExtractionHistory(extracted, pasteText.substring(0, 500));
 
