@@ -2,6 +2,8 @@
  * MetaAnalysis Pro — Main Application Module
  * 
  * Central coordinator for all application modules
+ * 
+ * @module main
  */
 
 // Import modules
@@ -10,6 +12,14 @@ import { makeStudyObj, initRoB, isObservational, isRCT, designCategory } from '.
 import { getApiKey, setApiKey, callGroqAPI, extractDataFromText, saveExtractionHistory } from './ai-extractor.js';
 import { runMetaAnalysis } from './statistics.js';
 import { runComprehensiveSearch, deduplicateResults } from './search-engines.js';
+import { renderForestPlot, downloadForestSVG, downloadForestPNG } from './forest-plot.js';
+import { renderFunnelPlot, renderEggerDetail, estimateTrimFill } from './funnel-plot.js';
+import { calcGradeScore, getCertaintyLabel, renderGradeOutcomes, renderSoFTable, createGradeOutcome } from './grade.js';
+import { exportJSON, exportCSV, exportPRISMAChecklist, exportHTMLReport, exportRoBTable } from './export.js';
+import { getRobStyle, renderTrafficLight, renderRoBHeatmap, exportRoBTableHTML } from './rob-visual.js';
+import { renderPrismaFlow, downloadPrismaSVG, getPrismaDataFromState } from './prisma.js';
+import { renderDashboard, logTimeline, logSearch, logImport, logStudy, logStats } from './dashboard.js';
+import { saveEligibility, renderEligibilitySummary, renderCriteriaHistory, restoreCriteriaVersion } from './eligibility.js';
 
 // ===========================
 // EXPORT TO WINDOW FOR HTML HANDLERS
@@ -211,7 +221,7 @@ function exportToWindow() {
   window.scrollToBottom = scrollToBottom;
   window.adjustZoom = adjustZoom;
   window.applyZoom = applyZoom;
-  
+
   // Module functions for legacy compatibility
   window.state = state;
   window.TAB_LABELS = TAB_LABELS;
@@ -230,6 +240,53 @@ function exportToWindow() {
   window.runMetaAnalysis = runMetaAnalysis;
   window.runComprehensiveSearch = runComprehensiveSearch;
   window.deduplicateResults = deduplicateResults;
+
+  // Visualization functions
+  window.renderForestPlot = renderForestPlot;
+  window.downloadForestSVG = downloadForestSVG;
+  window.downloadForestPNG = downloadForestPNG;
+  window.renderFunnelPlot = renderFunnelPlot;
+  window.renderEggerDetail = renderEggerDetail;
+  window.estimateTrimFill = estimateTrimFill;
+
+  // GRADE functions
+  window.calcGradeScore = calcGradeScore;
+  window.getCertaintyLabel = getCertaintyLabel;
+  window.renderGradeOutcomes = renderGradeOutcomes;
+  window.renderSoFTable = renderSoFTable;
+  window.createGradeOutcome = createGradeOutcome;
+
+  // Export functions
+  window.exportJSON = exportJSON;
+  window.exportCSV = exportCSV;
+  window.exportPRISMAChecklist = exportPRISMAChecklist;
+  window.exportHTMLReport = exportHTMLReport;
+  window.exportRoBTable = exportRoBTable;
+
+  // RoB Visual functions
+  window.getRobStyle = getRobStyle;
+  window.renderTrafficLight = renderTrafficLight;
+  window.renderRoBHeatmap = renderRoBHeatmap;
+  window.exportRoBTableHTML = exportRoBTableHTML;
+
+  // PRISMA functions
+  window.renderPrismaFlow = renderPrismaFlow;
+  window.downloadPrismaSVG = downloadPrismaSVG;
+  window.getPrismaDataFromState = getPrismaDataFromState;
+
+  // Dashboard functions
+  window.renderDashboard = renderDashboard;
+  window.logTimeline = logTimeline;
+  window.logSearch = logSearch;
+  window.logImport = logImport;
+  window.logStudy = logStudy;
+  window.logStats = logStats;
+
+  // Eligibility functions
+  window.saveEligibility = saveEligibility;
+  window.renderEligibilitySummary = renderEligibilitySummary;
+  window.renderCriteriaHistory = renderCriteriaHistory;
+  window.restoreCriteriaVersion = restoreCriteriaVersion;
 }
 
 // ===========================
