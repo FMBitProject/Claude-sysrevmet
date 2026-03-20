@@ -1008,11 +1008,23 @@
   }
   .qsr-header-title { font-size: 12px; font-weight: 700; }
   .qsr-header-sub   { font-size: 10px; opacity: .75; margin-top: 2px; }
-  .qsr-db-tabs {
-    display: flex; overflow-x: auto; border-bottom: 1px solid var(--border);
-    background: var(--bg3); scrollbar-width: none;
+  .qsr-db-tabs-wrap {
+    position: relative;
+    display: flex; align-items: center;
   }
-  .qsr-db-tabs::-webkit-scrollbar { display: none; }
+  .qsr-db-tabs {
+    display: flex; overflow-x: auto; overflow-y: hidden;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .qsr-db-tabs::-webkit-scrollbar { height: 4px; }
+  .qsr-db-tabs::-webkit-scrollbar-track { background: transparent; }
+  .qsr-db-tabs::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .qsr-db-tabs::-webkit-scrollbar-thumb:hover { background: var(--text4); }
   .qsr-db-tab {
     flex-shrink: 0; padding: 8px 16px;
     font-size: 11px; font-weight: 600; cursor: pointer;
@@ -1021,6 +1033,7 @@
     color: var(--text3); transition: all .15s;
     display: flex; align-items: center; gap: 6px;
     font-family: var(--font);
+    white-space: nowrap;
   }
   .qsr-db-tab:hover { color: var(--text2); background: var(--bg4); }
   .qsr-db-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--bg2); }
@@ -1034,6 +1047,22 @@
   .qsr-db-tab.active .qsr-count-badge { background: var(--accentl); color: var(--accent); }
   .qsr-db-tab.done   .qsr-count-badge { background: var(--greenl);  color: var(--green); }
   .qsr-db-tab.error  .qsr-count-badge { background: var(--redl);    color: var(--red); }
+  .qsr-scroll-arrow {
+    position: absolute; top: 0; bottom: 0;
+    width: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(to right, var(--bg3), transparent);
+    color: var(--text3);
+    font-size: 16px; font-weight: 700;
+    cursor: pointer;
+    z-index: 10;
+    transition: all .15s;
+    border: none;
+  }
+  .qsr-scroll-arrow:hover { background: var(--bg4); color: var(--accent); }
+  .qsr-scroll-arrow.left { left: 0; background: linear-gradient(to right, var(--bg3), transparent); }
+  .qsr-scroll-arrow.right { right: 0; background: linear-gradient(to left, var(--bg3), transparent); }
+  .qsr-scroll-arrow.hidden { opacity: 0; pointer-events: none; }
   .qsr-panel { display: none; }
   .qsr-panel.active { display: block; }
   .qsr-article {
@@ -4576,7 +4605,11 @@ function renderQsrSkeleton(query, enabledDbs = QSR_DBS) {
           <button onclick="document.getElementById('quick-search-results').style.display='none'" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;cursor:pointer;padding:4px 8px;font-size:12px;">✕</button>
         </div>
       </div>
-      <div class="qsr-db-tabs">${tabsHtml}</div>
+      <div class="qsr-db-tabs-wrap">
+        <button class="qsr-scroll-arrow left" id="qsr-scroll-left" onclick="scrollQsrTabs(-200)">◀</button>
+        <div class="qsr-db-tabs" id="qsr-db-tabs-scroll">${tabsHtml}</div>
+        <button class="qsr-scroll-arrow right hidden" id="qsr-scroll-right" onclick="scrollQsrTabs(200)">▶</button>
+      </div>
       <div id="qsr-panels">${panelsHtml}</div>
       <div class="qsr-footer">
         <span id="qsr-footer-total" style="font-size:11px;color:var(--text3);">Searching…</span>
