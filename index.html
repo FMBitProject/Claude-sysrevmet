@@ -1648,6 +1648,90 @@
       </div>
     </div>
 
+    <!-- Database Selection for PICO Search -->
+    <div class="card mt16" style="background:var(--bg3);border:1px solid var(--border2);">
+      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:12px;">
+        📊 Select Databases for PICO Search
+        <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:8px;">(check databases you want to search)</span>
+      </div>
+      
+      <!-- Core Databases -->
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Core Databases (Q1-Q5)</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-pubmed" checked style="width:auto;margin:0;accent-color:#e11d48"/>
+          <span style="color:#e11d48;">●</span> PubMed
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-europepmc" checked style="width:auto;margin:0;accent-color:#2563eb"/>
+          <span style="color:#2563eb;">●</span> Europe PMC
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-semantic" checked style="width:auto;margin:0;accent-color:#7c3aed"/>
+          <span style="color:#7c3aed;">●</span> Semantic Scholar
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-crossref" style="width:auto;margin:0;accent-color:#16a34a"/>
+          <span style="color:#16a34a;">●</span> CrossRef
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-core" style="width:auto;margin:0;accent-color:#d97706"/>
+          <span style="color:#d97706;">●</span> CORE
+        </label>
+      </div>
+      
+      <!-- Additional Databases -->
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Additional Databases (Q3-Q5 Focus)</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-doaj" checked style="width:auto;margin:0;accent-color:#16a34a"/>
+          <span style="color:#16a34a;">●</span> DOAJ (Q3-Q5 OA)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-scielo" checked style="width:auto;margin:0;accent-color:#059669"/>
+          <span style="color:#059669;">●</span> SciELO (Latin America)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-pmc" checked style="width:auto;margin:0;accent-color:#0891b2"/>
+          <span style="color:#0891b2;">●</span> PubMed Central (Full-text)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-medrxiv" style="width:auto;margin:0;accent-color:#7c3aed"/>
+          <span style="color:#7c3aed;">●</span> medRxiv (Preprints)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-jstage" style="width:auto;margin:0;accent-color:#0d9488"/>
+          <span style="color:#0d9488;">●</span> J-STAGE (Asian Journals)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-base" style="width:auto;margin:0;accent-color:#0284c7"/>
+          <span style="color:#0284c7;">●</span> BASE (Multidisciplinary)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-clinicaltrials" style="width:auto;margin:0;accent-color:#0369a1"/>
+          <span style="color:#0369a1;">●</span> ClinicalTrials.gov
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);font-size:10px;font-weight:600;">
+          <input type="checkbox" id="pico-db-epistemonikos" style="width:auto;margin:0;accent-color:#075985"/>
+          <span style="color:#075985;">●</span> Epistemonikos (Systematic Reviews)
+        </label>
+      </div>
+      
+      <!-- Quick Select Buttons -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:12px;border-top:1px solid var(--border);">
+        <span style="font-size:10px;color:var(--text3);font-weight:600;">Quick Select:</span>
+        <button class="btn btn-ghost btn-xs" onclick="selectAllPicoDatabases()">✅ All (15 DBs)</button>
+        <button class="btn btn-ghost btn-xs" onclick="selectCorePicoDatabases()">🎯 Q1-Q2 Only (5 DBs)</button>
+        <button class="btn btn-ghost btn-xs" onclick="selectQ3Q5PicoDatabases()">📚 Q3-Q5 Only (8 DBs)</button>
+        <button class="btn btn-ghost btn-xs" onclick="clearAllPicoDatabases()">✕ Clear All</button>
+        <span id="pico-db-count" style="font-size:10px;color:var(--text3);margin-left:auto;"><strong id="pico-db-selected-count">6</strong> databases selected</span>
+      </div>
+      
+      <div style="font-size:10px;color:var(--text3);margin-top:12px;">
+        💡 <strong>Tip:</strong> For Q1-Q2 journals, use Core Databases. For Q3-Q5 journals, check DOAJ, SciELO, PubMed Central. For comprehensive search, select All!
+      </div>
+    </div>
+
     <!-- Multi-DB Quick Search Results -->
     <div id="quick-search-results" style="display:none;margin-top:14px;"></div>
 
@@ -4387,11 +4471,23 @@ async function runQuickMultiSearch() {
   const designVal = document.getElementById('study-design-filter')?.value || '';
   const filters   = buildDesignFilters(designVal);
 
-  // Get enabled databases from checkboxes
-  const enabledDbs = QSR_DBS.filter(db => {
-    const checkbox = document.getElementById(db.checkbox);
-    return checkbox && checkbox.checked;
-  });
+  // Get enabled databases from PICO checkboxes (priority) or main search checkboxes
+  let enabledDbs = [];
+  const picoCheckboxes = document.querySelectorAll('[id^="pico-db-"]');
+  
+  if (picoCheckboxes.length > 0) {
+    // Use PICO database selector if available
+    enabledDbs = QSR_DBS.filter(db => {
+      const checkbox = document.getElementById('pico-db-' + db.id);
+      return checkbox && checkbox.checked;
+    });
+  } else {
+    // Fallback to main search checkboxes
+    enabledDbs = QSR_DBS.filter(db => {
+      const checkbox = document.getElementById(db.checkbox);
+      return checkbox && checkbox.checked;
+    });
+  }
 
   if (enabledDbs.length === 0) {
     showToast('⚠ Select at least one database!');
