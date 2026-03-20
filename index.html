@@ -4355,12 +4355,23 @@ function restorePicoFromState() {
 window._qsrResults = {};  // { pubmed: {total, items}, europepmc: {...}, ... }
 window._qsrActiveTab = 'pubmed';
 
+// All 15 databases for PICO Boolean Builder search
 const QSR_DBS = [
-  { id: 'pubmed',    label: 'PubMed',    color: '#e11d48', icon: '🔴' },
-  { id: 'europepmc', label: 'Europe PMC',color: '#2563eb', icon: '🔵' },
-  { id: 'semantic',  label: 'Semantic Scholar', color: '#7c3aed', icon: '🟣' },
-  { id: 'crossref',  label: 'CrossRef',  color: '#16a34a', icon: '🟢' },
-  { id: 'core',      label: 'CORE',      color: '#d97706', icon: '🟡' },
+  // Original 5 (Core)
+  { id: 'pubmed',    label: 'PubMed',           color: '#e11d48', icon: '🔴', checkbox: 'db-pubmed' },
+  { id: 'europepmc', label: 'Europe PMC',       color: '#2563eb', icon: '🔵', checkbox: 'db-europepmc' },
+  { id: 'semantic',  label: 'Semantic Scholar', color: '#7c3aed', icon: '🟣', checkbox: 'db-semantic' },
+  { id: 'crossref',  label: 'CrossRef',         color: '#16a34a', icon: '🟢', checkbox: 'db-crossref' },
+  { id: 'core',      label: 'CORE',             color: '#d97706', icon: '🟡', checkbox: 'db-core' },
+  // Additional 10 (Q3-Q5 Focus)
+  { id: 'doaj',      label: 'DOAJ',             color: '#16a34a', icon: '🟢', checkbox: 'db-doaj' },
+  { id: 'scielo',    label: 'SciELO',           color: '#059669', icon: '🟢', checkbox: 'db-scielo' },
+  { id: 'pmc',       label: 'PubMed Central',   color: '#0891b2', icon: '🔵', checkbox: 'db-pmc' },
+  { id: 'medrxiv',   label: 'medRxiv',          color: '#7c3aed', icon: '🟣', checkbox: 'db-medrxiv' },
+  { id: 'jstage',    label: 'J-STAGE',          color: '#0d9488', icon: '🟢', checkbox: 'db-jstage' },
+  { id: 'base',      label: 'BASE',             color: '#0284c7', icon: '🔵', checkbox: 'db-base' },
+  { id: 'clinicaltrials', label: 'ClinicalTrials.gov', color: '#0369a1', icon: '🔵', checkbox: 'db-clinicaltrials' },
+  { id: 'epistemonikos', label: 'Epistemonikos', color: '#075985', icon: '🟢', checkbox: 'db-epistemonikos' },
 ];
 
 async function runQuickMultiSearch() {
@@ -4376,23 +4387,47 @@ async function runQuickMultiSearch() {
   const designVal = document.getElementById('study-design-filter')?.value || '';
   const filters   = buildDesignFilters(designVal);
 
+  // Get enabled databases from checkboxes
+  const enabledDbs = QSR_DBS.filter(db => {
+    const checkbox = document.getElementById(db.checkbox);
+    return checkbox && checkbox.checked;
+  });
+
+  if (enabledDbs.length === 0) {
+    showToast('⚠ Select at least one database!');
+    return;
+  }
+
   btn.disabled = true;
   if (icon) icon.innerHTML = '<span class="spinner"></span>';
   window._qsrResults = {};
-  window._qsrActiveTab = 'pubmed';
+  window._qsrActiveTab = enabledDbs[0]?.id || 'pubmed';
 
   // ── Render initial skeleton with loading tabs ────────────────────────────
   panel.style.display = 'block';
-  panel.innerHTML = renderQsrSkeleton(query);
+  panel.innerHTML = renderQsrSkeleton(query, enabledDbs);
 
-  // ── Run all DB searches in parallel ─────────────────────────────────────
-  const tasks = [
-    { id: 'pubmed',    fn: () => qsrPubMed(query, maxR, yearFrom, yearTo, filters) },
-    { id: 'europepmc', fn: () => qsrEuropePMC(query, maxR, yearFrom, yearTo, filters) },
-    { id: 'semantic',  fn: () => qsrSemantic(query, maxR, filters) },
-    { id: 'crossref',  fn: () => qsrCrossRef(query, maxR, yearFrom, yearTo, filters) },
-    { id: 'core',      fn: () => qsrCore(query, maxR, filters) },
-  ];
+  // ── Run all enabled DB searches in parallel ─────────────────────────────────────
+  const tasks = enabledDbs.map(db => {
+    let searchFn;
+    switch(db.id) {
+      case 'pubmed': searchFn = () => qsrPubMed(query, maxR, yearFrom, yearTo, filters); break;
+      case 'europepmc': searchFn = () => qsrEuropePMC(query, maxR, yearFrom, yearTo, filters); break;
+      case 'semantic': searchFn = () => qsrSemantic(query, maxR, filters); break;
+      case 'crossref': searchFn = () => qsrCrossRef(query, maxR, yearFrom, yearTo, filters); break;
+      case 'core': searchFn = () => qsrCore(query, maxR, filters); break;
+      case 'doaj': searchFn = () => qsrDOAJ(query, maxR); break;
+      case 'scielo': searchFn = () => qsrSciELO(query, maxR); break;
+      case 'pmc': searchFn = () => qsrPubMedCentral(query, maxR); break;
+      case 'medrxiv': searchFn = () => qsrMedRxiv(query, maxR); break;
+      case 'jstage': searchFn = () => qsrJStage(query, maxR); break;
+      case 'base': searchFn = () => qsrBASE(query, maxR); break;
+      case 'clinicaltrials': searchFn = () => qsrClinicalTrials(query, maxR); break;
+      case 'epistemonikos': searchFn = () => qsrEpistemonikos(query, maxR); break;
+      default: searchFn = () => ({ results: [], total: 0 });
+    }
+    return { id: db.id, fn: searchFn };
+  });
 
   await Promise.all(tasks.map(async task => {
     try {
@@ -4400,32 +4435,33 @@ async function runQuickMultiSearch() {
       window._qsrResults[task.id] = result;
       updateQsrTab(task.id, 'done', result.total, result.items);
     } catch(e) {
+      console.error(`Error searching ${task.id}:`, e);
       window._qsrResults[task.id] = { total: 0, items: [], error: e.message };
       updateQsrTab(task.id, 'error', 0, []);
     }
   }));
 
   // Activate first tab with results
-  const firstWithResults = QSR_DBS.find(db => (window._qsrResults[db.id]?.items?.length || 0) > 0);
+  const firstWithResults = enabledDbs.find(db => (window._qsrResults[db.id]?.items?.length || 0) > 0);
   if (firstWithResults) switchQsrTab(firstWithResults.id);
 
   // Update footer totals
   const totalAll = Object.values(window._qsrResults).reduce((s, r) => s + (r?.total || 0), 0);
   const el = document.getElementById('qsr-footer-total');
-  if (el) el.textContent = `~${totalAll.toLocaleString()} total across all databases`;
+  if (el) el.textContent = `~${totalAll.toLocaleString()} total across ${enabledDbs.length} databases`;
 
   btn.disabled = false;
   if (icon) icon.textContent = '🔍';
 }
 
-function renderQsrSkeleton(query) {
-  const tabsHtml = QSR_DBS.map((db, i) => `
+function renderQsrSkeleton(query, enabledDbs = QSR_DBS) {
+  const tabsHtml = enabledDbs.map((db, i) => `
     <button class="qsr-db-tab ${i===0?'active':''}" id="qsr-tab-${db.id}" onclick="switchQsrTab('${db.id}')">
       <span style="color:${db.color};">${db.icon}</span>${db.label}
       <span class="qsr-count-badge" id="qsr-badge-${db.id}"><span class="spinner" style="width:10px;height:10px;border-width:1.5px;margin:0;"></span></span>
     </button>`).join('');
 
-  const panelsHtml = QSR_DBS.map((db, i) => `
+  const panelsHtml = enabledDbs.map((db, i) => `
     <div class="qsr-panel ${i===0?'active':''}" id="qsr-panel-${db.id}">
       <div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">
         <span class="spinner"></span> Searching ${db.label}…
@@ -4685,6 +4721,39 @@ async function qsrCore(q, maxR, filters) {
 async function searchPubMedQuick() { return runQuickMultiSearch(); }
 async function importPubMedQuickResults() { return importAllQsrResults(); }
 
+// ── Additional database search functions for PICO Boolean Builder ────────────────────────────────────────
+
+async function qsrDOAJ(q, maxR) {
+  return await searchDOAJ(q, maxR);
+}
+
+async function qsrSciELO(q, maxR) {
+  return await searchSciELO(q, maxR);
+}
+
+async function qsrPubMedCentral(q, maxR) {
+  return await searchPubMedCentral(q, maxR);
+}
+
+async function qsrMedRxiv(q, maxR) {
+  return await searchMedRxiv(q, maxR);
+}
+
+async function qsrJStage(q, maxR) {
+  return await searchJStage(q, maxR);
+}
+
+async function qsrBASE(q, maxR) {
+  return await searchBASE(q, maxR);
+}
+
+async function qsrClinicalTrials(q, maxR) {
+  return await searchClinicalTrials(q, maxR);
+}
+
+async function qsrEpistemonikos(q, maxR) {
+  return await searchEpistemonikos(q, maxR);
+}
 
 
 // ===========================
