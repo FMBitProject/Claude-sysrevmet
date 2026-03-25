@@ -6,21 +6,24 @@
  * @module main
  */
 
-// Import modules
+// Import all modules
 import { state, TAB_LABELS, saveProject, loadProject } from './state.js';
 import { makeStudyObj, initRoB, isObservational, isRCT, designCategory } from './study-manager.js';
 import { getApiKey, setApiKey, callGroqAPI, extractDataFromText, saveExtractionHistory } from './ai-extractor.js';
 import { runMetaAnalysis } from './statistics.js';
 import { runComprehensiveSearch, deduplicateResults } from './search-engines.js';
-import { renderForestPlot, downloadForestSVG, downloadForestPNG } from './forest-plot.js';
+import { renderForestPlot, downloadForestSVG, downloadForestPNG } from './forest-plot-complete.js';
 import { renderFunnelPlot, renderEggerDetail, estimateTrimFill } from './funnel-plot.js';
-import { calcGradeScore, getCertaintyLabel, renderGradeOutcomes, renderSoFTable, createGradeOutcome } from './grade.js';
+import { calcGradeScore, getCertaintyLabel, renderGradeOutcomes, renderSoFTable, createGradeOutcome, addNewGradeOutcome } from './grade-assessment.js';
 import { exportJSON, exportCSV, exportPRISMAChecklist, exportHTMLReport, exportRoBTable } from './export.js';
 import { getRobStyle, renderTrafficLight, renderRoBHeatmap, exportRoBTableHTML } from './rob-visual.js';
 import { renderPrismaFlow, downloadPrismaSVG, getPrismaDataFromState } from './prisma.js';
 import { renderDashboard, logTimeline, logSearch, logImport, logStudy, logStats } from './dashboard.js';
 import { saveEligibility, renderEligibilitySummary, renderCriteriaHistory, restoreCriteriaVersion } from './eligibility.js';
 import { searchDOAJ, searchSciELO, searchPubMedCentral, searchMedRxiv, searchCORE, searchAllAdditional } from './additional-search.js';
+import { initNavigation, showTab, getCurrentTab, refreshCurrentTab } from './navigation.js';
+import { renderPICOBuilder, renderSearchForm, renderAIExtractor, renderStatsSettings, renderStudiesTable, renderAllTabs } from './tab-renderer.js';
+import { showLoading, showSkeleton, showEmptyState, showError, showSuccess } from './ui-components.js';
 
 // ===========================
 // EXPORT TO WINDOW FOR HTML HANDLERS
@@ -296,11 +299,87 @@ function exportToWindow() {
   window.searchMedRxiv = searchMedRxiv;
   window.searchCORE = searchCORE;
   window.searchAllAdditional = searchAllAdditional;
+
+  // Navigation functions
+  window.initNavigation = initNavigation;
+  window.showTab = showTab;
+  window.getCurrentTab = getCurrentTab;
+  window.refreshCurrentTab = refreshCurrentTab;
+
+  // Tab renderer functions
+  window.renderPICOBuilder = renderPICOBuilder;
+  window.renderSearchForm = renderSearchForm;
+  window.renderAIExtractor = renderAIExtractor;
+  window.renderStatsSettings = renderStatsSettings;
+  window.renderStudiesTable = renderStudiesTable;
+  window.renderAllTabs = renderAllTabs;
+
+  // UI component functions
+  window.showLoading = showLoading;
+  window.showSkeleton = showSkeleton;
+  window.showEmptyState = showEmptyState;
+  window.showError = showError;
+  window.showSuccess = showSuccess;
 }
 
 // ===========================
 // INITIALIZATION
 // ===========================
+function initApp() {
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  
+  // Load saved sidebar state
+  const sidebarCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+  if (sidebarCollapsed) {
+    document.querySelector('.sidebar')?.classList.add('collapsed');
+    document.querySelector('.main')?.classList.add('sidebar-collapsed');
+    document.querySelector('.topbar')?.classList.add('sidebar-collapsed');
+    document.querySelector('.tab-scrollbar-wrap')?.classList.add('sidebar-collapsed');
+  }
+  
+  // Load zoom
+  applyZoom();
+  
+  // Load project
+  loadProject();
+  
+  // Render all tab contents
+  renderAllTabs();
+  
+  // Initialize navigation
+  initNavigation();
+  
+  // Initialize scroll arrows
+  updateTabStripArrows();
+  updateSidebarScrollBtns();
+  
+  // Validate all localStorage on load
+  ['extraction_history', 'meta_analysis_project', 'savedStudies', 'workspace_settings', 'dashboard_timeline'].forEach(key => {
+    try {
+      const val = localStorage.getItem(key);
+      if (val) JSON.parse(val);
+    } catch(e) {
+      console.warn('⚠ Corrupt localStorage key, clearing:', key);
+      localStorage.removeItem(key);
+    }
+  });
+  
+  // Initialize PICO database selector if available
+  if (typeof updatePicoDbCount === 'function') {
+    updatePicoDbCount();
+  }
+  
+  // Initialize QSR tabs scroll if available
+  if (typeof initQsrTabsScroll === 'function') {
+    setTimeout(initQsrTabsScroll, 500);
+  }
+  
+  showToast('✅ Workspace loaded');
+  console.log('🎉 MetaAnalysis Pro initialized');
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initApp();

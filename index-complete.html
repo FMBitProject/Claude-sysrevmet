@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MetaAnalysis Pro — Complete Systematic Review Workspace</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css"/>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"/>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">📊</div>
+        <div class="sidebar-logo-text">
+          <div class="sidebar-logo-title">MetaAnalysis Pro</div>
+          <div class="sidebar-logo-sub">Systematic Review Workspace</div>
+        </div>
+      </div>
+      
+      <div class="nav-scroll-wrap">
+        <nav class="nav" id="sidebar-nav">
+          <!-- Navigation items rendered by JS -->
+        </nav>
+      </div>
+      
+      <div id="sidebar-footer">
+        <div style="font-size:10px;color:var(--text3);">
+          <span id="sidebar-footer-text">v2.0 · PRISMA 2020 · Cochrane</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Topbar -->
+    <header class="topbar" id="topbar">
+      <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</div>
+      
+      <div class="topbar-crumb" id="topbar-crumb">
+        <span>Workspace</span> / <span id="current-tab">Dashboard</span>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="autosave-badge">
+          <div class="autosave-dot saved" id="autosave-dot"></div>
+          <span id="autosave-text">Saved</span>
+        </div>
+        
+        <div class="topbar-divider"></div>
+        
+        <button class="topbar-btn primary" onclick="saveProject()">💾 Save</button>
+        <button class="topbar-btn" onclick="exportReport()">📤 Export</button>
+        <button class="topbar-btn-reset" onclick="resetWorkspace()">⚠ Reset</button>
+        
+        <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">◑</div>
+      </div>
+    </header>
+
+    <!-- Tab Scrollbar Strip -->
+    <div class="tab-scrollbar-wrap sidebar-collapsed" id="tab-scrollbar-wrap">
+      <button class="tab-strip-arrow left" id="tab-arr-left" onclick="tabStripScroll(-1)">◀</button>
+      <div class="tab-scrollbar" id="tab-scrollbar">
+        <!-- Tab pills rendered by JS -->
+      </div>
+      <button class="tab-strip-arrow right" id="tab-arr-right" onclick="tabStripScroll(1)">▶</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main" id="main-content">
+      
+      <!-- Tab 0: Dashboard -->
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="section-header">
+          <div class="section-header-icon">📊</div>
+          <div class="section-header-text">
+            <h2>Dashboard</h2>
+            <p>Overview of your systematic review progress</p>
+          </div>
+        </div>
+        
+        <div id="dashboard-stats" class="grid3" style="margin-bottom:20px;">
+          <!-- Stats cards rendered by JS -->
+        </div>
+        
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Recent Activity</div>
+            <div id="dashboard-timeline"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Eligibility Criteria</div>
+            <div id="dash-eligibility-card"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 1: PICO & Eligibility -->
+      <div id="tab-pico" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">🎯</div>
+          <div class="section-header-text">
+            <h2>PICO Framework & Eligibility Criteria</h2>
+            <p>Define your research question and inclusion/exclusion criteria (PRISMA Item 6)</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">PICO / PECO Framework</div>
+          <div id="pico-builder">
+            <!-- PICO builder rendered by JS -->
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Eligibility Criteria</div>
+          <div id="eligibility-form">
+            <!-- Eligibility form rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Search -->
+      <div id="tab-search" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">🔍</div>
+          <div class="section-header-text">
+            <h2>Database Search</h2>
+            <p>Search multiple databases for relevant studies</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Search Strategy</div>
+          <div id="search-form">
+            <!-- Search form rendered by JS -->
+          </div>
+        </div>
+        
+        <div id="search-results-area">
+          <!-- Search results rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Tab 3: Data Extraction -->
+      <div id="tab-extraction" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">📋</div>
+          <div class="section-header-text">
+            <h2>Data Extraction</h2>
+            <p>Extract data from included studies</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">AI Data Extractor</div>
+          <div id="ai-extractor">
+            <!-- AI extractor rendered by JS -->
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Studies Table</div>
+          <div id="studies-table-area">
+            <!-- Studies table rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Forest Plot -->
+      <div id="tab-forest" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">🌲</div>
+          <div class="section-header-text">
+            <h2>Forest Plot</h2>
+            <p>Visual representation of study effects and pooled estimate</p>
+          </div>
+        </div>
+        
+        <div id="forest-plot"></div>
+        
+        <div class="card mt16">
+          <div class="card-title">Plot Options</div>
+          <div id="forest-options">
+            <!-- Forest plot options rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Funnel Plot -->
+      <div id="tab-funnel" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">📈</div>
+          <div class="section-header-text">
+            <h2>Funnel Plot & Publication Bias</h2>
+            <p>Assess publication bias and small-study effects</p>
+          </div>
+        </div>
+        
+        <div id="funnel-plot"></div>
+        
+        <div class="grid3 mt16">
+          <div class="card" id="egger-result">
+            <div class="card-title">Egger's Test</div>
+            <div id="egger-p">—</div>
+            <div id="egger-interp" style="font-size:10px;color:var(--text3);margin-top:4px;"></div>
+          </div>
+          <div class="card" id="begg-result">
+            <div class="card-title">Begg's Test</div>
+            <div id="begg-tau">—</div>
+            <div id="begg-interp" style="font-size:10px;color:var(--text3);margin-top:4px;"></div>
+          </div>
+          <div class="card" id="trim-fill-result">
+            <div class="card-title">Trim & Fill</div>
+            <div id="trim-fill">—</div>
+            <div id="trim-fill-adj" style="font-size:10px;color:var(--text3);margin-top:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 6: GRADE Assessment -->
+      <div id="tab-grade" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">🎯</div>
+          <div class="section-header-text">
+            <h2>GRADE Assessment</h2>
+            <p>Grade the certainty of evidence (High, Moderate, Low, Very Low)</p>
+          </div>
+        </div>
+        
+        <div id="grade-editor"></div>
+        
+        <div class="card mt16">
+          <div class="card-title">Summary of Findings Table</div>
+          <div id="sof-table"></div>
+        </div>
+      </div>
+
+      <!-- Tab 7: Risk of Bias -->
+      <div id="tab-rob" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">⚠️</div>
+          <div class="section-header-text">
+            <h2>Risk of Bias Summary</h2>
+            <p>Traffic light visualization of RoB assessments</p>
+          </div>
+        </div>
+        
+        <div id="rob-heatmap"></div>
+        
+        <div class="card mt16">
+          <div class="card-title">RoB Tool Selection</div>
+          <div id="rob-tool-selector">
+            <!-- RoB tool selector rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 8: PRISMA Flow -->
+      <div id="tab-prisma" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">📊</div>
+          <div class="section-header-text">
+            <h2>PRISMA 2020 Flow Diagram</h2>
+            <p>Study selection and exclusion flow</p>
+          </div>
+        </div>
+        
+        <div id="prisma-diagram"></div>
+        
+        <div class="card mt16">
+          <div class="card-title">PRISMA Numbers</div>
+          <div id="prisma-inputs">
+            <!-- PRISMA input fields rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 9: Statistics -->
+      <div id="tab-stats" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">📊</div>
+          <div class="section-header-text">
+            <h2>Statistical Analysis</h2>
+            <p>Meta-analysis settings and results</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Analysis Settings</div>
+          <div id="stats-settings">
+            <!-- Stats settings rendered by JS -->
+          </div>
+        </div>
+        
+        <div class="grid3 mt16" id="stats-results">
+          <!-- Stats results rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Tab 10: Export -->
+      <div id="tab-export" class="tab-content">
+        <div class="section-header">
+          <div class="section-header-icon">📤</div>
+          <div class="section-header-text">
+            <h2>Export & Report</h2>
+            <p>Export your systematic review in various formats</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Export Options</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <button class="btn btn-primary" onclick="exportHTMLReport()" style="padding:16px;">
+              📄 Full HTML Report
+            </button>
+            <button class="btn btn-ghost" onclick="exportCSV()" style="padding:16px;">
+              📊 CSV Data
+            </button>
+            <button class="btn btn-ghost" onclick="exportJSON()" style="padding:16px;">
+              💾 JSON Project
+            </button>
+            <button class="btn btn-ghost" onclick="exportPRISMAChecklist()" style="padding:16px;">
+              ✅ PRISMA Checklist
+            </button>
+            <button class="btn btn-ghost" onclick="exportForestSVG()" style="padding:16px;">
+              🌲 Forest Plot SVG
+            </button>
+            <button class="btn btn-ghost" onclick="exportRoBTable()" style="padding:16px;">
+              ⚠️ RoB Table
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="app-toast" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:1000;font-size:12px;font-weight:600;color:var(--text);align-items:center;gap:8px;">
+    <span id="toast-message"></span>
+  </div>
+
+  <!-- Floating Scroll Nav -->
+  <div class="scroll-nav" id="scroll-nav" style="display:none;">
+    <div class="scroll-nav-group">
+      <button class="scroll-nav-btn" id="nav-btn-up" onclick="sidebarScroll('up')" title="Scroll up">↑</button>
+      <button class="scroll-nav-btn" id="nav-btn-down" onclick="sidebarScroll('down')" title="Scroll down">↓</button>
+    </div>
+    <div class="scroll-nav-sep"></div>
+    <div class="scroll-nav-group">
+      <button class="scroll-nav-btn" onclick="scrollToTop()" title="Top">⤒</button>
+      <button class="scroll-nav-btn" onclick="scrollToBottom()" title="Bottom">⤓</button>
+    </div>
+    <div class="scroll-nav-sep"></div>
+    <div class="scroll-nav-group">
+      <button class="scroll-nav-btn" onclick="adjustZoom(-1)" title="Zoom out">−</button>
+      <span class="scroll-nav-zoom-label" id="zoom-label">100%</span>
+      <button class="scroll-nav-btn" onclick="adjustZoom(1)" title="Zoom in">+</button>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script type="module">
+    // Import all modules
+    import { state, saveProject, loadProject } from './js/state.js';
+    import { renderDashboard, logTimeline } from './js/dashboard.js';
+    import { renderForestPlot, downloadForestPlot } from './js/forest-plot-complete.js';
+    import { renderFunnelPlot } from './js/funnel-plot.js';
+    import { renderGradeEditor, renderSoFTable, addNewGradeOutcome } from './js/grade-assessment.js';
+    import { renderRoBHeatmap } from './js/rob-visual.js';
+    import { renderPrismaFlow } from './js/prisma.js';
+    import { exportHTMLReport, exportCSV, exportJSON, exportPRISMAChecklist } from './js/export.js';
+    
+    // Export to window for inline handlers
+    window.state = state;
+    window.saveProject = saveProject;
+    window.loadProject = loadProject;
+    window.renderDashboard = renderDashboard;
+    window.logTimeline = logTimeline;
+    window.renderForestPlot = renderForestPlot;
+    window.downloadForestPlot = downloadForestPlot;
+    window.renderFunnelPlot = renderFunnelPlot;
+    window.renderGradeEditor = renderGradeEditor;
+    window.renderSoFTable = renderSoFTable;
+    window.addNewGradeOutcome = addNewGradeOutcome;
+    window.renderRoBHeatmap = renderRoBHeatmap;
+    window.renderPrismaFlow = renderPrismaFlow;
+    window.exportHTMLReport = exportHTMLReport;
+    window.exportCSV = exportCSV;
+    window.exportJSON = exportJSON;
+    window.exportPRISMAChecklist = exportPRISMAChecklist;
+    
+    // Initialize app
+    console.log('✅ MetaAnalysis Pro loaded');
+  </script>
+  
+  <!-- Main App Script -->
+  <script type="module" src="js/main.js"></script>
+  
+  <!-- Additional Scripts -->
+  <script src="qsr-tabs-scroll.js"></script>
+  <script src="add-pico-db-selector.js"></script>
+</body>
+</html>
